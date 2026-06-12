@@ -272,22 +272,77 @@ function loadStats() {
     magnetCollected:0, maxRoundsNoDeath:0, achievementsUnlocked:0,
   });
 }
-function saveStats(s)   { LS.set('dz_stats', s); }
-function loadBest()     { return LS.get('dz_best', 0); }
-function saveBest(v)    { LS.set('dz_best', v); }
-function loadGems()     { return LS.get('dz_gems', 0); }
-function saveGems(v)    { LS.set('dz_gems', v); }
-function loadOwned()    { return LS.get('dz_owned', []); }
-function saveOwned(a)   { LS.set('dz_owned', a); }
-function loadEquipped() { return LS.get('dz_equip', {}); }
-function saveEquipped(o){ LS.set('dz_equip', o); }
-function loadAchieved() { return LS.get('dz_achieved', []); }
-function saveAchieved(a){ LS.set('dz_achieved', a); }
-function loadDailyBest(){ return LS.get('dz_daily', {}); }
+function saveStats(s)    { LS.set('dz_stats', s); }
+function loadBest()      { return LS.get('dz_best', 0); }
+function saveBest(v)     { LS.set('dz_best', v); }
+function loadGems()      { return LS.get('dz_gems', 0); }
+function saveGems(v)     { LS.set('dz_gems', v); }
+function loadOwned()     { return LS.get('dz_owned', []); }
+function saveOwned(a)    { LS.set('dz_owned', a); }
+function loadEquipped()  { return LS.get('dz_equip', {}); }
+function saveEquipped(o) { LS.set('dz_equip', o); }
+function loadAchieved()  { return LS.get('dz_achieved', []); }
+function saveAchieved(a) { LS.set('dz_achieved', a); }
+function loadDailyBest() { return LS.get('dz_daily', {}); }
 function saveDailyBest(o){ LS.set('dz_daily', o); }
-function loadSoundPref(){ return LS.get('dz_sound', true); }
-function loadVibePref() { return LS.get('dz_vibe', true); }
+function loadSoundPref() { return LS.get('dz_sound', true); }
+function loadVibePref()  { return LS.get('dz_vibe', true); }
 function loadOnboarding(){ return LS.get('dz_onboard', false); }
+function loadUsername()  { return LS.get('dz_username', null); }
+function saveUsername(v) { LS.set('dz_username', v); }
+function loadScores()    { return LS.get('dz_scores', []); }
+function saveScores(a)   { LS.set('dz_scores', a); }
+
+// ── Username + scores ─────────────────────────────────────────────────────────
+
+function generateUsername() {
+  return 'user' + Math.floor(Math.random()*9000000+1000000);
+}
+
+function submitScore(isDaily) {
+  if (!username) username = generateUsername();
+  const scores = loadScores();
+  scores.push({
+    name: username,
+    score,
+    round,
+    date: new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}),
+    isDaily: isDaily||false,
+  });
+  scores.sort((a,b)=>b.score-a.score);
+  saveScores(scores.slice(0,20));
+}
+
+// ── Daily reward tiers ────────────────────────────────────────────────────────
+
+const DAILY_TIERS = [
+  { pts: 50000, gems: 250, label: 'Legendary' },
+  { pts: 15000, gems: 100, label: 'Epic'       },
+  { pts: 5000,  gems: 50,  label: 'Great'      },
+  { pts: 2000,  gems: 25,  label: 'Good'       },
+  { pts: 500,   gems: 10,  label: 'Nice'       },
+];
+
+function getDailyTier(s) { return DAILY_TIERS.find(t=>s>=t.pts)||null; }
+
+function claimDailyReward(sc) {
+  const key = String(todaySeed());
+  const db = loadDailyBest();
+  if (db[key]&&db[key].rewardClaimed) return null;
+  const tier = getDailyTier(sc);
+  if (!tier) return null;
+  db[key] = {...(db[key]||{}), rewardClaimed:true};
+  saveDailyBest(db);
+  gems += tier.gems; saveGems(gems);
+  const s = loadStats(); s.totalGems=(s.totalGems||0)+tier.gems; saveStats(s);
+  return tier;
+}
+
+function dailyRewardAlreadyClaimed() {
+  const key = String(todaySeed());
+  const db = loadDailyBest();
+  return !!(db[key]&&db[key].rewardClaimed);
+}
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -313,6 +368,10 @@ let tokensThisDrop = 0;
 let shakeTimer = 0, shakeX = 0, shakeY = 0;
 let onboardingDone = false, onboardingStep = -1, isOnboarding = false;
 let roundFlashTimer = 0, roundFlashNum = 0;
+let leaderboardTab = 'all';
+let usernamePromptActive = false;
+let usernameInput = '';
+let username = null;
 
 function isOwned(id)    { return owned.includes(id); }
 function isAchieved(id) { return achieved.includes(id); }
@@ -360,15 +419,15 @@ function checkAchievements() {
       achieved.push(ach.id);
       newOnes.push(ach);
       const r = ach.reward;
-      if (r.type === 'gems') {
-        gems += r.gems; saveGems(gems);
-        const s = loadStats(); s.totalGems = (s.totalGems||0) + r.gems; saveStats(s);
-      } else if (r.type === 'trail'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
-        else if (r.type === 'theme'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
-        else if (r.type === 'board'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
-        else if (r.type === 'ballfx' && r.id && !owned.includes(r.id)) { owned.push(r.id); }
-        else if (r.type === 'title') { }
-        else if (r.type === 'bundle') {
+      if (r.type==='gems') {
+        gems+=r.gems; saveGems(gems);
+        const s=loadStats(); s.totalGems=(s.totalGems||0)+r.gems; saveStats(s);
+      } else if (r.type==='trail'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
+        else if (r.type==='theme'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
+        else if (r.type==='board'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
+        else if (r.type==='ballfx' && r.id && !owned.includes(r.id)) { owned.push(r.id); }
+        else if (r.type==='title') { }
+        else if (r.type==='bundle') {
           if (r.trail  && !owned.includes(r.trail))  owned.push(r.trail);
           if (r.theme  && !owned.includes(r.theme))  owned.push(r.theme);
           if (r.ballfx && !owned.includes(r.ballfx)) owned.push(r.ballfx);
@@ -379,8 +438,8 @@ function checkAchievements() {
   if (newOnes.length) {
     saveAchieved(achieved); saveOwned(owned);
     SFX.achieve(); haptic([10,5,10,5,20]);
-    newAchievMsg   = '🏆 ' + newOnes[0].label + '!';
-    newAchievDesc  = newOnes[0].desc + (newOnes[0].reward.type==='gems'?' (+'+newOnes[0].reward.gems+' 💎)':'');
+    newAchievMsg  = '🏆 '+newOnes[0].label+'!';
+    newAchievDesc = newOnes[0].desc+(newOnes[0].reward.type==='gems'?' (+'+newOnes[0].reward.gems+' 💎)':'');
     newAchievTimer = 300;
     updateHUD();
   }
@@ -388,9 +447,9 @@ function checkAchievements() {
 
 function checkPowerupUnlocks() {
   for (const pu of POWERUP_THRESHOLDS) {
-    if (score >= pu.score && !unlockedPowerups.includes(pu.id)) {
+    if (score>=pu.score && !unlockedPowerups.includes(pu.id)) {
       unlockedPowerups.push(pu.id);
-      newUnlockMsg   = pu.label + ' unlocked!';
+      newUnlockMsg   = pu.label+' unlocked!';
       newUnlockTimer = 180;
       buildTokens();
     }
@@ -401,16 +460,16 @@ function checkPowerupUnlocks() {
 
 function buildStarfield() {
   starfieldStars = [];
-  for (let i = 0; i < 80; i++) {
-    starfieldStars.push({ x: Math.random()*W, y: Math.random()*H, r: Math.random()*1.5+0.3, speed: Math.random()*0.3+0.1, alpha: Math.random() });
+  for (let i=0;i<80;i++) {
+    starfieldStars.push({x:Math.random()*W,y:Math.random()*H,r:Math.random()*1.5+0.3,speed:Math.random()*0.3+0.1,alpha:Math.random()});
   }
 }
 
 function drawStarfield() {
   for (const s of starfieldStars) {
-    s.y += s.speed; if (s.y > H) s.y = 0;
-    ctx.beginPath(); ctx.arc(s.x, s.y, s.r, 0, Math.PI*2);
-    ctx.fillStyle = `rgba(255,255,255,${0.2+s.alpha*0.6})`; ctx.fill();
+    s.y+=s.speed; if (s.y>H) s.y=0;
+    ctx.beginPath(); ctx.arc(s.x,s.y,s.r,0,Math.PI*2);
+    ctx.fillStyle=`rgba(255,255,255,${0.2+s.alpha*0.6})`; ctx.fill();
   }
 }
 
@@ -419,82 +478,81 @@ function drawStarfield() {
 function rngOrMath() { return dailyRng ? dailyRng() : Math.random(); }
 
 function betweenPegY() {
-  return 60 + Math.floor(rngOrMath() * (ROWS - 1)) * 50 + 25;
+  return 60 + Math.floor(rngOrMath()*(ROWS-1))*50 + 25;
 }
 
 function buildBoard() {
   pegs = [];
-  for (let row = 0; row < ROWS; row++) {
-    const count = 10;
-    const offset = row % 2 === 0 ? 0 : (W / (count - 1)) / 2;
-    for (let col = 0; col < count; col++) {
-      const x = offset + (col / (count - 1)) * (W - PEG_R * 2) + PEG_R;
-      if (x > W - PEG_R) continue;
-      pegs.push({ x, y: 60 + row * 50, r: PEG_R, hit: false, ht: 0 });
+  for (let row=0;row<ROWS;row++) {
+    const count=10;
+    const offset=row%2===0?0:(W/(count-1))/2;
+    for (let col=0;col<count;col++) {
+      const x=offset+(col/(count-1))*(W-PEG_R*2)+PEG_R;
+      if (x>W-PEG_R) continue;
+      pegs.push({x,y:60+row*50,r:PEG_R,hit:false,ht:0});
     }
   }
   buildObstacles(); buildBonusSlots(); buildTokens();
 }
 
 function buildObstacles() {
-  obstacles = [];
-  if (round < 2) return;
-  const count = Math.min(Math.floor((round - 1) / 2) + 1, 5);
-  for (let i = 0; i < count; i++) {
-    const w = 20 + rngOrMath() * 30;
-    const startX = 30 + rngOrMath() * (W - 60 - w);
-    obstacles.push({ x: startX, y: betweenPegY(), w, h: 10, type: 'bumper',
-      baseX: startX, range: 30 + rngOrMath()*50,
-      speed: (0.008 + rngOrMath()*0.012) * (rngOrMath()<0.5?1:-1),
-      phase: rngOrMath()*Math.PI*2 });
+  obstacles=[];
+  if (round<2) return;
+  const count=Math.min(Math.floor((round-1)/2)+1,5);
+  for (let i=0;i<count;i++) {
+    const w=20+rngOrMath()*30;
+    const startX=30+rngOrMath()*(W-60-w);
+    obstacles.push({x:startX,y:betweenPegY(),w,h:10,type:'bumper',
+      baseX:startX,range:30+rngOrMath()*50,
+      speed:(0.008+rngOrMath()*0.012)*(rngOrMath()<0.5?1:-1),
+      phase:rngOrMath()*Math.PI*2});
   }
-  if (round >= 5) {
-    const s = Math.min(Math.floor((round-4)/3)+1, 3);
-    for (let i = 0; i < s; i++) {
-      obstacles.push({ x: 60+rngOrMath()*(W-120), y: betweenPegY(),
-        w: 50, h: 8, type: 'spinner', angle: 0,
-        speed: 0.02+rngOrMath()*0.02, baseX:0, range:0, phase:0 });
+  if (round>=5) {
+    const s=Math.min(Math.floor((round-4)/3)+1,3);
+    for (let i=0;i<s;i++) {
+      obstacles.push({x:60+rngOrMath()*(W-120),y:betweenPegY(),
+        w:50,h:8,type:'spinner',angle:0,
+        speed:0.02+rngOrMath()*0.02,baseX:0,range:0,phase:0});
     }
   }
 }
 
 function buildBonusSlots() {
-  const deathCount = round >= 6 ? Math.min(Math.floor((round-4)/4), 4) : 0;
-  const all = [0,1,2,3,4,5,6,7,8,9].sort(() => rngOrMath()-0.5);
-  bonusSlots = all.slice(0,1);
-  deathSlots = all.slice(1, 1+deathCount);
+  const deathCount=round>=6?Math.min(Math.floor((round-4)/4),4):0;
+  const all=[0,1,2,3,4,5,6,7,8,9].sort(()=>rngOrMath()-0.5);
+  bonusSlots=all.slice(0,1);
+  deathSlots=all.slice(1,1+deathCount);
 }
 
 function buildTokens() {
-  tokens = [];
-  const count = Math.min(2+Math.floor(round/3), 7);
-  const types = ['x+1','+ball','gem','gem_multi'];
+  tokens=[];
+  const count=Math.min(2+Math.floor(round/3),7);
+  const types=['x+1','+ball','gem','gem_multi'];
   if (hasPowerup('shield')) types.push('shield');
   if (hasPowerup('magnet')) types.push('magnet');
-  for (let i = 0; i < count; i++) {
-    tokens.push({ x: 30+rngOrMath()*(W-60), y: betweenPegY(), r:10, type: types[i%types.length], hit:false });
+  for (let i=0;i<count;i++) {
+    tokens.push({x:30+rngOrMath()*(W-60),y:betweenPegY(),r:10,type:types[i%types.length],hit:false});
   }
 }
 
 // ── Spawning ──────────────────────────────────────────────────────────────────
 
 function spawnBalls(x) {
-  const count = Math.max(1, pendingBalls);
+  const count=Math.max(1,pendingBalls);
   SFX.drop(); haptic(8);
-  const stats = loadStats(); stats.totalBalls += count; saveStats(stats);
-  for (let i = 0; i < count; i++) {
-    const spread = (i-(count-1)/2)*6;
-    balls.push({ x: Math.max(BALL_R,Math.min(W-BALL_R,x+spread)), y:8,
-      vx:(Math.random()-0.5)*0.3, vy:1.5, r:BALL_R, active:true, trail:[],
-      pegsHit:0, stuckTimer:0, lastX:x, lastY:8, magnetTimer:0 });
+  const stats=loadStats(); stats.totalBalls+=count; saveStats(stats);
+  for (let i=0;i<count;i++) {
+    const spread=(i-(count-1)/2)*6;
+    balls.push({x:Math.max(BALL_R,Math.min(W-BALL_R,x+spread)),y:8,
+      vx:(Math.random()-0.5)*0.3,vy:1.5,r:BALL_R,active:true,trail:[],
+      pegsHit:0,stuckTimer:0,lastX:x,lastY:8,magnetTimer:0});
   }
-  pendingBalls=1; dropping=true;
-  tokensThisDrop=0;
+  pendingBalls=1; dropping=true; tokensThisDrop=0;
 }
 
 function addParticles(x,y,col,n=6) {
   for (let i=0;i<n;i++) {
-    const a=Math.random()*Math.PI*2, s=1+Math.random()*2.5;
+    const a=Math.random()*Math.PI*2,s=1+Math.random()*2.5;
     particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,r:2+Math.random()*2,life:1,col});
   }
 }
@@ -532,8 +590,8 @@ function updateHUD() {
   document.getElementById('blv').textContent = ballsLeft+(pendingBalls>1?' ('+pendingBalls+'x)':'');
   document.getElementById('mv').textContent  = 'x'+multiplier;
   document.getElementById('rv').textContent  = round;
-  const ms = milestoneFor(round), pct = Math.min(1,score/ms);
-  const pf = document.getElementById('progress-fill');
+  const ms=milestoneFor(round), pct=Math.min(1,score/ms);
+  const pf=document.getElementById('progress-fill');
   pf.style.width=(pct*100)+'%';
   pf.style.background=pct>=1?'#1D9E75':pct>0.6?'#EF9F27':'#E24B4A';
   document.getElementById('target-label').textContent=score+' / '+ms;
@@ -552,8 +610,7 @@ function resolveSlot(b) {
   const isBonus=bonusSlots.includes(slot), isDeath=deathSlots.includes(slot);
 
   if (isDeath) {
-    SFX.death(); haptic([20,10,20]);
-    triggerShake();
+    SFX.death(); haptic([20,10,20]); triggerShake();
     if (shieldActive) {
       shieldActive=false; SFX.shield(); haptic(15);
       const stats=loadStats(); stats.deathsSurvived++; stats.shieldUsed=(stats.shieldUsed||0)+1;
@@ -580,9 +637,9 @@ function resolveSlot(b) {
   }
 
   if (isBonus) {
-    const hadZeroBalls = ballsLeft <= 0;
+    const hadZeroBalls=ballsLeft<=0;
     ballsLeft++; pts=Math.round(pts*1.5);
-    if (hadZeroBalls) { const s=loadStats(); s.bonusSlotSaves=(s.bonusSlotSaves||0)+1; saveStats(s); }
+    if (hadZeroBalls){const s=loadStats();s.bonusSlotSaves=(s.bonusSlotSaves||0)+1;saveStats(s);}
     addPopup(b.x,H-SLOT_H-22,'+1 ball!',BONUS_COL);
     addParticles(b.x,H-SLOT_H,BONUS_COL,12);
   } else { addParticles(b.x,H-SLOT_H,SLOT_COLS[slot]); }
@@ -599,22 +656,22 @@ function resolveSlot(b) {
 
 function advanceRound() {
   SFX.roundUp(); haptic([10,5,10,5,10]);
-  if (ballsLeft===1) { const s=loadStats(); s.lastStandWins=(s.lastStandWins||0)+1; saveStats(s); }
-  if (roundPerfect) { const stats=loadStats(); stats.perfectRounds=(stats.perfectRounds||0)+1; saveStats(stats); }
+  if (ballsLeft===1){const s=loadStats();s.lastStandWins=(s.lastStandWins||0)+1;saveStats(s);}
+  if (roundPerfect){const stats=loadStats();stats.perfectRounds=(stats.perfectRounds||0)+1;saveStats(stats);}
   if (currentRoundNoDeath) {
     consecutiveRoundsNoDeath++;
     const s=loadStats();
-    if (consecutiveRoundsNoDeath > (s.maxRoundsNoDeath||0)) { s.maxRoundsNoDeath=consecutiveRoundsNoDeath; saveStats(s); }
+    if (consecutiveRoundsNoDeath>(s.maxRoundsNoDeath||0)){s.maxRoundsNoDeath=consecutiveRoundsNoDeath;saveStats(s);}
   } else { consecutiveRoundsNoDeath=0; }
   currentRoundNoDeath=true;
   if (adUsed) {
     postReviveRounds++;
-    if (postReviveRounds>=3) { const s=loadStats(); s.comebackRounds=Math.max(s.comebackRounds||0,3); saveStats(s); }
-    if (postReviveRounds>=5) { const s=loadStats(); s.phoenixRounds=Math.max(s.phoenixRounds||0,5); saveStats(s); }
+    if (postReviveRounds>=3){const s=loadStats();s.comebackRounds=Math.max(s.comebackRounds||0,3);saveStats(s);}
+    if (postReviveRounds>=5){const s=loadStats();s.phoenixRounds=Math.max(s.phoenixRounds||0,5);saveStats(s);}
   }
   if (round===3) {
     const elapsed=(Date.now()-gameStartTime)/1000;
-    if (elapsed<120) { const s=loadStats(); s.speedRuns=(s.speedRuns||0)+1; saveStats(s); }
+    if (elapsed<120){const s=loadStats();s.speedRuns=(s.speedRuns||0)+1;saveStats(s);}
   }
   round++;
   const stats=loadStats(); if (round>stats.bestRound){stats.bestRound=round;saveStats(stats);}
@@ -644,12 +701,19 @@ function triggerGameOver() {
   saveStats(stats);
   checkAchievements();
   updateHUD();
+  submitScore(isDailyMode);
   if (isDailyMode) {
     const key=String(todaySeed()), db=loadDailyBest();
     const prev=db[key], isNew=!prev||score>prev.score;
-    if (isNew){db[key]={score,round};saveDailyBest(db);}
-    dailyResult={score,round,isNew,prev}; screen='daily_result'; syncHUD();
+    if (isNew){db[key]={score,round,...(db[key]||{})};saveDailyBest(db);}
+    const claimedTier=claimDailyReward(score);
+    dailyResult={score,round,isNew,prev,claimedTier,alreadyClaimed:dailyRewardAlreadyClaimed()&&!claimedTier};
+    screen='daily_result'; syncHUD();
   } else {
+    if (!username){
+      username=loadUsername();
+      if (!username){usernamePromptActive=true;usernameInput='';}
+    }
     setMsg('out of balls — game over!');
     document.getElementById('rbtn').style.display='inline-block';
   }
@@ -673,8 +737,8 @@ function afterBallLands() {
 
 function update() {
   pulseT+=0.08;
-  if (shakeTimer>0) { shakeTimer--; shakeX=(Math.random()-0.5)*6*(shakeTimer/12); shakeY=(Math.random()-0.5)*6*(shakeTimer/12); }
-  else { shakeX=0; shakeY=0; }
+  if (shakeTimer>0){shakeTimer--;shakeX=(Math.random()-0.5)*6*(shakeTimer/12);shakeY=(Math.random()-0.5)*6*(shakeTimer/12);}
+  else{shakeX=0;shakeY=0;}
   if (roundFlashTimer>0) roundFlashTimer--;
   const t=Date.now()/1000;
   for (const o of obstacles) {
@@ -713,7 +777,7 @@ function update() {
         b.vx=(b.vx-2*dot*nx)*BOUNCE; b.vy=(b.vy-2*dot*ny)*BOUNCE;
         if (b.x-b.r<0){b.x=b.r;b.vx=Math.abs(b.vx);}
         if (b.x+b.r>W){b.x=W-b.r;b.vx=-Math.abs(b.vx);}
-        if (!p.hit){
+        if (!p.hit) {
           p.hit=true; p.ht=12; b.pegsHit++; gamePegsHit++;
           const s=loadStats(); s.totalPegsHit=(s.totalPegsHit||0)+1;
           s.maxPegsInDrop=Math.max(s.maxPegsInDrop||0,b.pegsHit);
@@ -762,7 +826,7 @@ function update() {
           addParticles(tok.x,tok.y,'#5DCAA5',10);
         } else if (tok.type==='magnet') {
           b.magnetTimer=120;
-          const sm=loadStats(); sm.magnetCollected=(sm.magnetCollected||0)+1; saveStats(sm);
+          const sm=loadStats();sm.magnetCollected=(sm.magnetCollected||0)+1;saveStats(sm);
           addPopup(tok.x,tok.y-16,'MAGNET!','#378ADD');
           addParticles(tok.x,tok.y,'#378ADD',10);
         }
@@ -853,16 +917,120 @@ function drawBall(b) {
   ctx.fillStyle=th.ball; ctx.fill();
 }
 
+// ── Draw username prompt ──────────────────────────────────────────────────────
+
+function drawUsernamePrompt() {
+  ctx.fillStyle='rgba(18,18,28,0.94)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(127,119,221,0.15)';
+  ctx.beginPath(); ctx.roundRect(W/2-150,H/2-90,300,180,12); ctx.fill();
+  ctx.strokeStyle='rgba(127,119,221,0.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(W/2-150,H/2-90,300,180,12); ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='600 15px system-ui'; ctx.textAlign='center';
+  ctx.fillText('Set your username',W/2,H/2-54);
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 11px system-ui';
+  ctx.fillText('Shows on your leaderboard. Skip to use a',W/2,H/2-32);
+  ctx.fillText('random name.',W/2,H/2-16);
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.roundRect(W/2-110,H/2-4,220,36,8); ctx.fill();
+  ctx.strokeStyle='rgba(127,119,221,0.6)'; ctx.lineWidth=1.5;
+  ctx.beginPath(); ctx.roundRect(W/2-110,H/2-4,220,36,8); ctx.stroke();
+  if (usernameInput) {
+    ctx.fillStyle='#fff'; ctx.font='500 14px system-ui'; ctx.textAlign='center';
+    ctx.fillText(usernameInput,W/2,H/2+18);
+  } else {
+    ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 13px system-ui'; ctx.textAlign='center';
+    ctx.fillText('enter username...',W/2,H/2+18);
+  }
+  if (Math.floor(Date.now()/500)%2===0) {
+    const tw=ctx.measureText(usernameInput).width;
+    ctx.fillStyle='#7F77DD'; ctx.fillRect(W/2+tw/2+2,H/2+4,2,14);
+  }
+  ctx.fillStyle='#7F77DD';
+  ctx.beginPath(); ctx.roundRect(W/2-108,H/2+42,100,32,8); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='600 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('Save',W/2-58,H/2+63);
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.roundRect(W/2+8,H/2+42,100,32,8); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='600 12px system-ui';
+  ctx.fillText('Skip',W/2+58,H/2+63);
+}
+
+// ── Draw leaderboard ──────────────────────────────────────────────────────────
+
+function drawLeaderboard() {
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle='rgba(18,18,28,0.99)';
+  ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
+
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.roundRect(12,12,80,30,8); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='500 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('← back',52,32);
+
+  ctx.fillStyle='#7F77DD'; ctx.font='600 18px system-ui'; ctx.textAlign='center';
+  ctx.fillText('LEADERBOARD',W/2,36);
+  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 11px system-ui';
+  ctx.fillText(username||'',W/2,54);
+
+  const tabs=[{id:'all',label:'All Games'},{id:'daily',label:'Daily Only'}];
+  tabs.forEach((tab,i)=>{
+    const tx=W/2-110+i*115, ty=64, tw=105, th=26;
+    ctx.fillStyle=leaderboardTab===tab.id?'rgba(127,119,221,0.3)':'rgba(255,255,255,0.05)';
+    ctx.beginPath(); ctx.roundRect(tx,ty,tw,th,6); ctx.fill();
+    if (leaderboardTab===tab.id){ctx.strokeStyle='#7F77DD';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(tx,ty,tw,th,6);ctx.stroke();}
+    ctx.fillStyle=leaderboardTab===tab.id?'#fff':'rgba(255,255,255,0.4)';
+    ctx.font='500 11px system-ui'; ctx.textAlign='center';
+    ctx.fillText(tab.label,tx+tw/2,ty+17);
+    tab._x=tx; tab._y=ty; tab._w=tw; tab._h=th;
+  });
+  drawLeaderboard._tabs=tabs;
+
+  const allScores=loadScores();
+  const filtered=leaderboardTab==='daily'?allScores.filter(s=>s.isDaily):allScores;
+
+  if (filtered.length===0) {
+    ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='400 13px system-ui'; ctx.textAlign='center';
+    ctx.fillText('No scores yet — play a game!',W/2,H/2);
+    return;
+  }
+
+  const pad=14, y0=102;
+  ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='500 9px system-ui'; ctx.textAlign='left';
+  ctx.fillText('#',pad+4,y0); ctx.fillText('NAME',pad+30,y0);
+  ctx.fillText('SCORE',pad+160,y0); ctx.fillText('RND',pad+240,y0); ctx.fillText('DATE',pad+275,y0);
+  ctx.fillStyle='rgba(255,255,255,0.1)'; ctx.fillRect(pad,y0+4,W-pad*2,1);
+
+  const bestScore=Math.max(...filtered.map(s=>s.score));
+  filtered.forEach((entry,i)=>{
+    const ey=y0+14+i*32;
+    if (ey>H-20) return;
+    const isBest=entry.score===bestScore;
+    if (isBest){ctx.fillStyle='rgba(239,159,39,0.1)';ctx.beginPath();ctx.roundRect(pad,ey-12,W-pad*2,28,4);ctx.fill();}
+    ctx.fillStyle=isBest?'#EF9F27':'rgba(255,255,255,0.5)';
+    ctx.font=isBest?'600 12px system-ui':'400 12px system-ui'; ctx.textAlign='left';
+    ctx.fillText(i+1,pad+4,ey+4);
+    ctx.fillStyle=isBest?'#EF9F27':'rgba(255,255,255,0.8)'; ctx.font='500 12px system-ui';
+    const nm=entry.name.length>10?entry.name.slice(0,10)+'…':entry.name;
+    ctx.fillText(nm,pad+30,ey+4);
+    ctx.fillStyle=isBest?'#EF9F27':'#AFA9EC'; ctx.font='600 12px system-ui';
+    ctx.fillText(entry.score.toLocaleString(),pad+160,ey+4);
+    ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 11px system-ui';
+    ctx.fillText(entry.round,pad+240,ey+4);
+    ctx.fillText(entry.date,pad+275,ey+4);
+    if (entry.isDaily){ctx.fillStyle='#5DCAA5';ctx.font='400 9px system-ui';ctx.fillText('📅',pad+14,ey-2);}
+  });
+}
+
 // ── Draw onboarding ───────────────────────────────────────────────────────────
 
 function drawOnboarding() {
-  const steps = [
-    { title: 'Drop the ball', body: 'Click or tap anywhere to aim and drop. The ball bounces through pegs down into scoring slots.' },
-    { title: 'Score slots', body: 'Each slot scores different points. Hit the center 100-pt slot for big points. The 💎 slot gives you a free ball!' },
-    { title: 'Tokens', body: 'Floating tokens give bonuses — x+1 raises your multiplier, +ball loads extra balls, 💎 earns gems for the shop.' },
-    { title: 'Multiplier', body: 'Hit x+1 tokens to chain your multiplier up to x10. Death slots (💀) reset it and cost a ball — avoid them!' },
+  const steps=[
+    {title:'Drop the ball',    body:'Click or tap anywhere to aim and drop. The ball bounces through pegs down into scoring slots.'},
+    {title:'Score slots',      body:'Each slot scores different points. Hit the center 100-pt slot for big points. The 💎 slot gives you a free ball!'},
+    {title:'Tokens',           body:'Floating tokens give bonuses — x+1 raises your multiplier, +ball loads extra balls, 💎 earns gems for the shop.'},
+    {title:'Multiplier',       body:'Hit x+1 tokens to chain your multiplier up to x10. Death slots (💀) reset it and cost a ball — avoid them!'},
   ];
-  const step = steps[onboardingStep];
+  const step=steps[onboardingStep];
   if (!step) return;
   ctx.fillStyle='rgba(18,18,28,0.88)'; ctx.fillRect(0,0,W,H);
   ctx.fillStyle='rgba(127,119,221,0.15)';
@@ -870,7 +1038,7 @@ function drawOnboarding() {
   ctx.strokeStyle='rgba(127,119,221,0.4)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.roundRect(W/2-150,H/2-80,300,160,12); ctx.stroke();
   ctx.fillStyle='#fff'; ctx.font='600 16px system-ui'; ctx.textAlign='center';
-  ctx.fillText(step.title, W/2, H/2-44);
+  ctx.fillText(step.title,W/2,H/2-44);
   ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='400 12px system-ui';
   const words=step.body.split(' '), maxW=260;
   let line='', ly=H/2-18;
@@ -883,9 +1051,9 @@ function drawOnboarding() {
   ctx.fillStyle='#7F77DD';
   ctx.beginPath(); ctx.roundRect(W/2-60,H/2+52,120,32,8); ctx.fill();
   ctx.fillStyle='#fff'; ctx.font='600 12px system-ui';
-  ctx.fillText(onboardingStep<steps.length-1?'Next →':'Got it!', W/2, H/2+73);
+  ctx.fillText(onboardingStep<steps.length-1?'Next →':'Got it!',W/2,H/2+73);
   ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 10px system-ui';
-  ctx.fillText((onboardingStep+1)+' / '+steps.length, W/2, H/2+96);
+  ctx.fillText((onboardingStep+1)+' / '+steps.length,W/2,H/2+96);
 }
 
 // ── Draw launch ───────────────────────────────────────────────────────────────
@@ -908,22 +1076,18 @@ function drawLaunch() {
   }
 
   ctx.fillStyle='#fff'; ctx.font='700 44px system-ui'; ctx.textAlign='center';
-  ctx.fillText('DROPZONE',W/2,H/2-50);
+  ctx.fillText('DROPZONE',W/2,H/2-60);
   const title=getPlayerTitle();
-  if (title) {
-    ctx.fillStyle='#EF9F27'; ctx.font='600 13px system-ui';
-    ctx.fillText('✦ '+title+' ✦',W/2,H/2-28);
-  } else {
-    ctx.fillStyle='rgba(175,169,236,0.7)'; ctx.font='400 12px system-ui';
-    ctx.fillText('aim. drop. score.',W/2,H/2-28);
-  }
+  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-38);}
+  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-38);}
 
   const btns=[
-    {label:'▶  PLAY',            y:H/2+10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
-    {label:'📅  Daily Challenge', y:H/2+62,  bg:'rgba(93,202,165,0.15)',     fg:'#5DCAA5',               w:220, border:'#5DCAA5'},
-    {label:'🏆  Achievements',    y:H/2+108, bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
-    {label:'💎  Shop',            y:H/2+154, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'⚙️  Settings',         y:H/2+200, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
+    {label:'▶  PLAY',            y:H/2,     bg:'#7F77DD',                   fg:'#fff',                  w:200},
+    {label:'📅  Daily Challenge', y:H/2+50,  bg:'rgba(93,202,165,0.15)',     fg:'#5DCAA5',               w:220, border:'#5DCAA5'},
+    {label:'🏆  Achievements',    y:H/2+96,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
+    {label:'📊  Leaderboard',     y:H/2+142, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'💎  Shop',            y:H/2+188, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'⚙️  Settings',         y:H/2+234, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
   btns.forEach(btn=>{
     ctx.fillStyle=btn.bg;
@@ -935,7 +1099,7 @@ function drawLaunch() {
   });
   drawLaunch._btns=btns;
 
-  const ballY=24+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-115);
+  const ballY=24+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-120);
   const th=getTheme();
   ctx.beginPath(); ctx.arc(W/2,ballY,BALL_R+2,0,Math.PI*2);
   ctx.fillStyle=th.ball+'44'; ctx.fill();
@@ -964,45 +1128,45 @@ function drawSettings() {
 
   const stats=loadStats();
   const items=[
-    {type:'toggle', label:'Sound',     value:soundEnabled,     id:'sound',  y:80},
-    {type:'toggle', label:'Vibration', value:vibrationEnabled, id:'vibe',   y:130},
-    {type:'section',label:'YOUR STATS',                                      y:185},
-    {type:'stat',   label:'Games Played',        value:stats.gamesPlayed||0,                   y:215},
-    {type:'stat',   label:'Total Score',         value:(stats.totalScore||0).toLocaleString(),  y:250},
-    {type:'stat',   label:'Best Round',          value:stats.bestRound||0,                     y:285},
-    {type:'stat',   label:'Gems Earned',         value:(stats.totalGems||0).toLocaleString(),   y:320},
-    {type:'stat',   label:'Balls Dropped',       value:(stats.totalBalls||0).toLocaleString(),  y:355},
-    {type:'stat',   label:'Death Slots Survived',value:stats.deathsSurvived||0,                y:390},
-    {type:'stat',   label:'Pegs Hit',            value:(stats.totalPegsHit||0).toLocaleString(),y:425},
-    {type:'section',label:'PRIVACY',                                                            y:455},
-    {type:'text',   label:'Dropzone stores all data locally on your device. No account, no tracking, no data sent anywhere.',y:478},
+    {type:'toggle',label:'Sound',    value:soundEnabled,    id:'sound',y:80},
+    {type:'toggle',label:'Vibration',value:vibrationEnabled,id:'vibe', y:130},
+    {type:'section',label:'YOUR STATS',y:185},
+    {type:'stat',label:'Games Played',        value:stats.gamesPlayed||0,                   y:215},
+    {type:'stat',label:'Total Score',         value:(stats.totalScore||0).toLocaleString(),  y:250},
+    {type:'stat',label:'Best Round',          value:stats.bestRound||0,                     y:285},
+    {type:'stat',label:'Gems Earned',         value:(stats.totalGems||0).toLocaleString(),   y:320},
+    {type:'stat',label:'Balls Dropped',       value:(stats.totalBalls||0).toLocaleString(),  y:355},
+    {type:'stat',label:'Death Slots Survived',value:stats.deathsSurvived||0,                y:390},
+    {type:'stat',label:'Pegs Hit',            value:(stats.totalPegsHit||0).toLocaleString(),y:425},
+    {type:'section',label:'PRIVACY',y:455},
+    {type:'text',label:'Dropzone stores all data locally on your device. No account, no tracking, no data sent anywhere.',y:478},
   ];
 
   items.forEach(item=>{
-    if (item.type==='section') {
+    if (item.type==='section'){
       ctx.fillStyle='#888780'; ctx.font='500 10px system-ui'; ctx.textAlign='left';
       ctx.fillText(item.label,20,item.y);
-    } else if (item.type==='toggle') {
+    } else if (item.type==='toggle'){
       ctx.fillStyle='rgba(255,255,255,0.06)';
       ctx.beginPath(); ctx.roundRect(16,item.y-20,W-32,44,8); ctx.fill();
       ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='500 14px system-ui'; ctx.textAlign='left';
       ctx.fillText(item.label,32,item.y+6);
-      const tx=W-60, ty=item.y-8, tw=44, th=24;
+      const tx=W-60,ty=item.y-8,tw=44,th=24;
       ctx.fillStyle=item.value?'#7F77DD':'rgba(255,255,255,0.15)';
       ctx.beginPath(); ctx.roundRect(tx,ty,tw,th,12); ctx.fill();
       ctx.fillStyle='#fff';
       ctx.beginPath(); ctx.arc(item.value?tx+tw-12:tx+12,ty+th/2,9,0,Math.PI*2); ctx.fill();
       item._y=item.y-20; item._h=44;
-    } else if (item.type==='stat') {
+    } else if (item.type==='stat'){
       ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 13px system-ui'; ctx.textAlign='left';
       ctx.fillText(item.label,28,item.y);
       ctx.fillStyle='#AFA9EC'; ctx.font='500 13px system-ui'; ctx.textAlign='right';
       ctx.fillText(item.value,W-28,item.y);
-    } else if (item.type==='text') {
+    } else if (item.type==='text'){
       ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 11px system-ui'; ctx.textAlign='left';
       const words=item.label.split(' '), maxW=W-40;
       let line='', ly=item.y;
-      for (const w of words) {
+      for (const w of words){
         const test=line+w+' ';
         if (ctx.measureText(test).width>maxW&&line){ctx.fillText(line.trim(),20,ly);line=w+' ';ly+=16;}
         else line=test;
@@ -1034,22 +1198,19 @@ function drawAchievements() {
   ctx.fillText(done+' / '+total+' unlocked',W/2,56);
 
   const cats=[
-    {id:'score', label:'Score — Best Game'},
-    {id:'total', label:'Score — Cumulative'},
-    {id:'round', label:'Rounds'},
-    {id:'skill', label:'Skill'},
-    {id:'gems',  label:'Gems & Economy'},
-    {id:'death', label:'Death & Survival'},
-    {id:'meta',  label:'Meta'},
+    {id:'score',label:'Score — Best Game'},
+    {id:'total',label:'Score — Cumulative'},
+    {id:'round',label:'Rounds'},
+    {id:'skill',label:'Skill'},
+    {id:'gems', label:'Gems & Economy'},
+    {id:'death',label:'Death & Survival'},
+    {id:'meta', label:'Meta'},
   ];
 
   let y=72-achieveScroll, pad=14;
   for (const cat of cats) {
     const items=ACHIEVEMENTS.filter(a=>a.cat===cat.id);
-    if (y+16>60&&y<H-10) {
-      ctx.fillStyle='#888780'; ctx.font='600 10px system-ui'; ctx.textAlign='left';
-      ctx.fillText(cat.label.toUpperCase(),pad,y+12);
-    }
+    if (y+16>60&&y<H-10){ctx.fillStyle='#888780';ctx.font='600 10px system-ui';ctx.textAlign='left';ctx.fillText(cat.label.toUpperCase(),pad,y+12);}
     y+=26;
     for (const ach of items) {
       const unlocked=isAchieved(ach.id);
@@ -1149,7 +1310,7 @@ function drawAchievements() {
           else if (id==='ach_unlocked_10'){cur=stats.achievementsUnlocked;goal=10;}
           else if (id==='ach_unlocked_50'){cur=stats.achievementsUnlocked;goal=50;}
           const pct=Math.min(1,cur/goal);
-          const bx=pad+42, bw=W-pad*2-42-8, bh=4, by=y+48;
+          const bx=pad+42,bw=W-pad*2-42-8,bh=4,by=y+48;
           ctx.fillStyle='rgba(255,255,255,0.1)';
           ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,2); ctx.fill();
           ctx.fillStyle=pct>=0.75?'#5DCAA5':pct>=0.4?'#EF9F27':'#7F77DD';
@@ -1168,7 +1329,7 @@ function drawAchievements() {
     y+=10;
   }
   drawAchievements._totalH=y+achieveScroll;
-  if ((drawAchievements._totalH||0)>H+achieveScroll) {
+  if ((drawAchievements._totalH||0)>H+achieveScroll){
     ctx.fillStyle='rgba(239,159,39,0.4)'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
     ctx.fillText('scroll for more ↓',W/2,H-14);
   }
@@ -1178,7 +1339,7 @@ function drawAchievements() {
 
 function drawGame() {
   ctx.clearRect(0,0,W,H);
-  if (shakeX||shakeY) ctx.translate(shakeX, shakeY);
+  if (shakeX||shakeY) ctx.translate(shakeX,shakeY);
   const skin=getBoardSkin(), dk=dark();
   ctx.fillStyle=boardBg();
   ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
@@ -1190,7 +1351,7 @@ function drawGame() {
   }
   if (skin==='starfield') drawStarfield();
   if (skin==='fire') {
-    for (let i=0;i<3;i++) {
+    for (let i=0;i<3;i++){
       const fy=H-30+Math.sin(pulseT*2+i)*15;
       const g=ctx.createRadialGradient(W/2,fy,0,W/2,fy,120+i*30);
       g.addColorStop(0,'rgba(255,100,0,0.08)'); g.addColorStop(1,'rgba(255,0,0,0)');
@@ -1204,7 +1365,7 @@ function drawGame() {
     ctx.fillText('📅 DAILY CHALLENGE',W/2,13);
   }
 
-  for (let i=0;i<SLOTS;i++) {
+  for (let i=0;i<SLOTS;i++){
     const x=i*SLOT_W, isB=bonusSlots.includes(i), isD=deathSlots.includes(i);
     const sc=isD?'#E24B4A':isB?BONUS_COL:SLOT_COLS[i];
     ctx.fillStyle=sc+(dk||skin!=='minimal'&&skin!=='white'?'44':'22');
@@ -1219,7 +1380,7 @@ function drawGame() {
   ctx.beginPath(); ctx.moveTo(0,H-SLOT_H); ctx.lineTo(W,H-SLOT_H); ctx.stroke();
   for (let i=1;i<SLOTS;i++){ctx.beginPath();ctx.moveTo(i*SLOT_W,H-SLOT_H);ctx.lineTo(i*SLOT_W,H);ctx.stroke();}
 
-  for (const o of obstacles) {
+  for (const o of obstacles){
     ctx.save();
     const oc=skin==='neon'?'#5DCAA5':dk||['dark','crimson','starfield','fire'].includes(skin)?'#3C3489':'#CEC0F6';
     const os=skin==='neon'?'#5DCAA5':dk?'#7F77DD':'#534AB7';
@@ -1228,13 +1389,13 @@ function drawGame() {
     ctx.restore();
   }
 
-  for (const p of pegs) {
+  for (const p of pegs){
     ctx.beginPath(); ctx.arc(p.x,p.y,p.r+(p.hit?2:0),0,Math.PI*2);
     if (skin==='neon'&&!p.hit){ctx.fillStyle='#5DCAA522';ctx.fill();ctx.strokeStyle='#5DCAA5';ctx.lineWidth=1;ctx.stroke();}
     else{ctx.fillStyle=pegColor(p.hit);ctx.fill();}
   }
 
-  for (const tok of tokens) {
+  for (const tok of tokens){
     if (tok.hit) continue;
     let col='#D4537E';
     if (tok.type==='+ball')    col=BONUS_COL;
@@ -1257,9 +1418,9 @@ function drawGame() {
   const nextPu=POWERUP_THRESHOLDS.find(p=>!hasPowerup(p.id));
   if (nextPu&&score<nextPu.score){ctx.font='400 10px system-ui';ctx.textAlign='right';ctx.fillStyle='rgba(175,169,236,0.5)';ctx.fillText(nextPu.label+' at '+nextPu.score.toLocaleString(),W-8,isDailyMode?36:26);}
 
-  if (!gameOver&&!dropping&&aimX>=0&&hasPowerup('path')) {
+  if (!gameOver&&!dropping&&aimX>=0&&hasPowerup('path')){
     const pts=simulatePath(aimX);
-    if (pts.length>1) {
+    if (pts.length>1){
       ctx.setLineDash([3,5]); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5;
       ctx.beginPath(); ctx.moveTo(pts[0].x,pts[0].y);
       for (let i=1;i<pts.length;i++) ctx.lineTo(pts[i].x,pts[i].y);
@@ -1272,11 +1433,11 @@ function drawGame() {
 
   for (const b of balls){if(b.active)drawBall(b);}
 
-  if (!gameOver&&!dropping&&aimX>=0) {
+  if (!gameOver&&!dropping&&aimX>=0){
     const th=getTheme();
     ctx.setLineDash([4,6]); ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1.5;
     ctx.beginPath(); ctx.moveTo(aimX,0); ctx.lineTo(aimX,50); ctx.stroke(); ctx.setLineDash([]);
-    for (let i=0;i<pendingBalls;i++) {
+    for (let i=0;i<pendingBalls;i++){
       const spread=(i-(pendingBalls-1)/2)*6;
       ctx.beginPath(); ctx.arc(aimX+spread,8,BALL_R,0,Math.PI*2);
       ctx.fillStyle=th.ball+'88'; ctx.fill();
@@ -1286,14 +1447,14 @@ function drawGame() {
   particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=p.col;ctx.globalAlpha=p.life;ctx.fill();ctx.globalAlpha=1;});
   popups.forEach(p=>{ctx.font='500 13px system-ui';ctx.textAlign='center';ctx.fillStyle=p.col;ctx.globalAlpha=p.life;ctx.fillText(p.txt,p.x,p.y);ctx.globalAlpha=1;});
 
-  if (newUnlockMsg&&newUnlockTimer>0) {
+  if (newUnlockMsg&&newUnlockTimer>0){
     const alpha=Math.min(1,newUnlockTimer/30); ctx.globalAlpha=alpha;
     ctx.fillStyle='rgba(18,18,28,0.92)'; ctx.fillRect(W/2-140,H/2-32,280,60);
     ctx.fillStyle='#EF9F27'; ctx.font='600 14px system-ui'; ctx.textAlign='center'; ctx.fillText(newUnlockMsg,W/2,H/2-8);
     ctx.fillStyle='#fff'; ctx.font='400 11px system-ui'; ctx.fillText('collect tokens on the board to use it',W/2,H/2+14);
     ctx.globalAlpha=1;
   }
-  if (newAchievMsg&&newAchievTimer>0) {
+  if (newAchievMsg&&newAchievTimer>0){
     const alpha=Math.min(1,newAchievTimer/30); ctx.globalAlpha=alpha;
     ctx.fillStyle='rgba(18,18,28,0.92)';
     ctx.beginPath(); ctx.roundRect(W/2-145,H/2+44,290,68,8); ctx.fill();
@@ -1306,25 +1467,22 @@ function drawGame() {
     ctx.globalAlpha=1;
   }
 
-  // Round flash animation
-  if (roundFlashTimer>0) {
+  if (roundFlashTimer>0){
     const alpha=roundFlashTimer>30?1:(roundFlashTimer/30);
     const scale=roundFlashTimer>45?1+(60-roundFlashTimer)*0.02:1;
     ctx.globalAlpha=alpha*0.85;
     ctx.fillStyle='rgba(18,18,28,0.7)'; ctx.fillRect(0,0,W,H);
     ctx.globalAlpha=alpha;
     ctx.save();
-    ctx.translate(W/2,H/2);
-    ctx.scale(scale,scale);
+    ctx.translate(W/2,H/2); ctx.scale(scale,scale);
     ctx.fillStyle='#7F77DD'; ctx.font='700 56px system-ui'; ctx.textAlign='center';
     ctx.fillText('ROUND',0,-20);
     ctx.fillStyle='#fff'; ctx.font='700 72px system-ui';
     ctx.fillText(roundFlashNum,0,62);
-    ctx.restore();
-    ctx.globalAlpha=1;
+    ctx.restore(); ctx.globalAlpha=1;
   }
 
-  if (gameOver&&!isDailyMode) {
+  if (gameOver&&!isDailyMode){
     ctx.fillStyle='rgba(18,18,28,0.92)'; ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#F0997B'; ctx.font='600 24px system-ui'; ctx.textAlign='center';
     ctx.fillText('game over',W/2,H/2-110);
@@ -1334,12 +1492,11 @@ function drawGame() {
     ctx.fillText('best: '+best.toLocaleString(),W/2,H/2-62);
     ctx.fillStyle='#5DCAA5'; ctx.font='500 12px system-ui';
     ctx.fillText('💎 '+gems+' gems',W/2,H/2-42);
-
     const stats=loadStats(); stats.best=loadBest();
     const close=[];
-    for (const ach of ACHIEVEMENTS) {
+    for (const ach of ACHIEVEMENTS){
       if (isAchieved(ach.id)) continue;
-      let cur=0, goal=1;
+      let cur=0,goal=1;
       const id=ach.id;
       if (id==='ach_score_500')       {cur=stats.best;goal=500;}
       else if (id==='ach_score_1k')   {cur=stats.best;goal=1000;}
@@ -1371,7 +1528,7 @@ function drawGame() {
     }
     close.sort((a,b)=>b.pct-a.pct);
     const top=close.slice(0,3);
-    if (top.length>0) {
+    if (top.length>0){
       ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='500 10px system-ui'; ctx.textAlign='center';
       ctx.fillText('CLOSE TO UNLOCKING',W/2,H/2-16);
       top.forEach((item,i)=>{
@@ -1398,7 +1555,7 @@ function drawGame() {
     }
   }
 
-  if (homeConfirmPending) {
+  if (homeConfirmPending){
     ctx.fillStyle='rgba(18,18,28,0.94)'; ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#e8e8e4'; ctx.font='600 16px system-ui'; ctx.textAlign='center';
     ctx.fillText('Go to main menu?',W/2,H/2-50);
@@ -1415,6 +1572,7 @@ function drawGame() {
   }
 
   if (onboardingStep>=0) drawOnboarding();
+  if (usernamePromptActive) drawUsernamePrompt();
   if (shakeX||shakeY) ctx.translate(-shakeX,-shakeY);
 }
 
@@ -1422,7 +1580,7 @@ function drawGame() {
 
 function drawAdScreen() {
   ctx.fillStyle='rgba(18,18,28,0.94)'; ctx.fillRect(0,0,W,H);
-  if (adScreen==='offer') {
+  if (adScreen==='offer'){
     ctx.fillStyle='#F0997B'; ctx.font='600 20px system-ui'; ctx.textAlign='center'; ctx.fillText('out of balls!',W/2,H/2-80);
     ctx.fillStyle='#AFA9EC'; ctx.font='500 13px system-ui'; ctx.fillText('score: '+score,W/2,H/2-52);
     ctx.fillStyle='#e8e8e4'; ctx.font='400 12px system-ui';
@@ -1431,7 +1589,7 @@ function drawAdScreen() {
     ctx.fillStyle='#EF9F27'; ctx.beginPath(); ctx.roundRect(W/2-100,H/2+24,200,42,10); ctx.fill();
     ctx.fillStyle='#1a1a18'; ctx.font='600 14px system-ui'; ctx.fillText('▶  Watch Ad',W/2,H/2+50);
     ctx.fillStyle='#888780'; ctx.font='400 11px system-ui'; ctx.fillText('no thanks — end game',W/2,H/2+86);
-  } else if (adScreen==='watching') {
+  } else if (adScreen==='watching'){
     const progress=1-(adTimer/300);
     ctx.fillStyle='#e8e8e4'; ctx.font='600 16px system-ui'; ctx.textAlign='center'; ctx.fillText('watching ad...',W/2,H/2-40);
     ctx.fillStyle='#888780'; ctx.font='400 12px system-ui'; ctx.fillText(Math.ceil(adTimer/60)+'s remaining',W/2,H/2-14);
@@ -1461,13 +1619,13 @@ function drawShop() {
   const sections=[{label:'Ball Colors',types:['theme']},{label:'Trails',types:['trail']},{label:'Ball Effects',types:['ballfx']},{label:'Boards',types:['board']}];
   let y=72-shopScroll; const itemH=52, pad=12;
 
-  for (const sec of sections) {
+  for (const sec of sections){
     const items=SHOP_ITEMS.filter(i=>sec.types.includes(i.type));
     if (y+20>60&&y<H-10){ctx.fillStyle='#888780';ctx.font='500 10px system-ui';ctx.textAlign='left';ctx.fillText(sec.label.toUpperCase(),pad,y+12);}
     y+=24;
-    for (const item of items) {
-      if (y+itemH>60&&y<H-10) {
-        const owned_=isOwned(item.id), slot=item.type, equippedHere=equipped[slot]===item.id;
+    for (const item of items){
+      if (y+itemH>60&&y<H-10){
+        const owned_=isOwned(item.id),slot=item.type,equippedHere=equipped[slot]===item.id;
         ctx.fillStyle=equippedHere?(dk?'rgba(127,119,221,0.2)':'rgba(127,119,221,0.12)'):(dk?'rgba(255,255,255,0.05)':'rgba(0,0,0,0.04)');
         ctx.beginPath(); ctx.roundRect(pad,y,W-pad*2,itemH-4,8); ctx.fill();
         if (equippedHere){ctx.strokeStyle='#7F77DD';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(pad,y,W-pad*2,itemH-4,8);ctx.stroke();}
@@ -1482,12 +1640,12 @@ function drawShop() {
       y+=itemH;
     }
     const excl=EXCLUSIVE_COSMETICS.filter(i=>sec.types.includes(i.type)&&isOwned(i.id));
-    if (excl.length>0) {
+    if (excl.length>0){
       if (y+20>60&&y<H-10){ctx.fillStyle='#EF9F27';ctx.font='500 9px system-ui';ctx.textAlign='left';ctx.fillText('EXCLUSIVE (ACHIEVEMENT UNLOCKS)',pad,y+10);}
       y+=20;
-      for (const item of excl) {
-        if (y+itemH>60&&y<H-10) {
-          const slot=item.type, equippedHere=equipped[slot]===item.id;
+      for (const item of excl){
+        if (y+itemH>60&&y<H-10){
+          const slot=item.type,equippedHere=equipped[slot]===item.id;
           ctx.fillStyle=equippedHere?'rgba(239,159,39,0.18)':'rgba(255,255,255,0.04)';
           ctx.beginPath(); ctx.roundRect(pad,y,W-pad*2,itemH-4,8); ctx.fill();
           if (equippedHere){ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(pad,y,W-pad*2,itemH-4,8);ctx.stroke();}
@@ -1512,25 +1670,76 @@ function drawDailyResult() {
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle='rgba(18,18,28,0.99)'; ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
   drawStarfield();
-  ctx.fillStyle='#5DCAA5'; ctx.font='700 20px system-ui'; ctx.textAlign='center'; ctx.fillText('📅 daily challenge',W/2,60);
-  const d=new Date(); ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 12px system-ui';
-  ctx.fillText(d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}),W/2,82);
-  ctx.fillStyle='#fff'; ctx.font='700 52px system-ui'; ctx.fillText(dailyResult.score.toLocaleString(),W/2,150);
-  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 13px system-ui'; ctx.fillText('round '+dailyResult.round,W/2,174);
-  if (dailyResult.isNew){ctx.fillStyle='#EF9F27';ctx.font='600 14px system-ui';ctx.fillText('🏆 new personal best!',W/2,200);}
-  else if (dailyResult.prev){ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='400 12px system-ui';ctx.fillText('best: '+dailyResult.prev.score.toLocaleString(),W/2,200);}
+  ctx.fillStyle='#5DCAA5'; ctx.font='700 20px system-ui'; ctx.textAlign='center';
+  ctx.fillText('📅 daily challenge',W/2,52);
+  const d=new Date();
+  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 12px system-ui';
+  ctx.fillText(d.toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'}),W/2,70);
+  ctx.fillStyle='#fff'; ctx.font='700 48px system-ui';
+  ctx.fillText(dailyResult.score.toLocaleString(),W/2,128);
+  ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 12px system-ui';
+  ctx.fillText('round '+dailyResult.round,W/2,148);
+  if (dailyResult.isNew){ctx.fillStyle='#EF9F27';ctx.font='600 12px system-ui';ctx.fillText('🏆 new personal best!',W/2,168);}
+  else if (dailyResult.prev){ctx.fillStyle='rgba(255,255,255,0.4)';ctx.font='400 11px system-ui';ctx.fillText('best: '+dailyResult.prev.score.toLocaleString(),W/2,168);}
   const title=getPlayerTitle();
-  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 12px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,220);}
-  ctx.fillStyle='rgba(127,119,221,0.15)'; ctx.beginPath(); ctx.roundRect(W/2-130,234,260,78,10); ctx.fill();
-  ctx.strokeStyle='rgba(127,119,221,0.4)'; ctx.lineWidth=1; ctx.beginPath(); ctx.roundRect(W/2-130,234,260,78,10); ctx.stroke();
-  ctx.fillStyle='#AFA9EC'; ctx.font='500 12px system-ui'; ctx.fillText('DROPZONE — Daily Challenge',W/2,254);
-  ctx.fillStyle='#fff'; ctx.font='600 13px system-ui';
-  ctx.fillText(d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+(title?' ['+title+']':'')+' · '+dailyResult.score+' · R'+dailyResult.round,W/2,274);
-  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='400 10px system-ui'; ctx.fillText('Can you beat it? 🎯',W/2,292);
-  ctx.fillStyle='#7F77DD'; ctx.beginPath(); ctx.roundRect(W/2-80,326,160,38,9); ctx.fill();
-  ctx.fillStyle='#fff'; ctx.font='600 13px system-ui'; ctx.fillText('📋 copy score card',W/2,350);
-  ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.roundRect(W/2-80,380,160,36,9); ctx.fill();
-  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='500 13px system-ui'; ctx.fillText('← back to menu',W/2,403);
+  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 10px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,184);}
+
+  // Tier row
+  const tierY=194;
+  ctx.fillStyle='rgba(255,255,255,0.15)'; ctx.font='500 8px system-ui'; ctx.textAlign='center';
+  ctx.fillText('DAILY REWARD TIERS',W/2,tierY);
+  DAILY_TIERS.slice().reverse().forEach((tier,i)=>{
+    const tx=W/2-165+i*68,ty=tierY+6,tw=62,th=36;
+    const hit=dailyResult.score>=tier.pts;
+    ctx.fillStyle=hit?'rgba(93,202,165,0.2)':'rgba(255,255,255,0.04)';
+    ctx.beginPath(); ctx.roundRect(tx,ty,tw,th,6); ctx.fill();
+    if (hit){ctx.strokeStyle='#5DCAA5';ctx.lineWidth=1;ctx.beginPath();ctx.roundRect(tx,ty,tw,th,6);ctx.stroke();}
+    ctx.fillStyle=hit?'#5DCAA5':'rgba(255,255,255,0.3)';
+    ctx.font='600 9px system-ui'; ctx.textAlign='center';
+    ctx.fillText(tier.label,tx+tw/2,ty+13);
+    ctx.fillStyle=hit?'#EF9F27':'rgba(255,255,255,0.25)';
+    ctx.font='500 9px system-ui';
+    ctx.fillText('+'+tier.gems+' 💎',tx+tw/2,ty+26);
+  });
+
+  // Reward banner
+  const claimedY=tierY+48;
+  if (dailyResult.claimedTier){
+    ctx.fillStyle='rgba(93,202,165,0.15)';
+    ctx.beginPath(); ctx.roundRect(W/2-140,claimedY,280,32,8); ctx.fill();
+    ctx.strokeStyle='#5DCAA5'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(W/2-140,claimedY,280,32,8); ctx.stroke();
+    ctx.fillStyle='#5DCAA5'; ctx.font='600 12px system-ui'; ctx.textAlign='center';
+    ctx.fillText('🎉 '+dailyResult.claimedTier.label+'! +'+dailyResult.claimedTier.gems+' gems claimed',W/2,claimedY+21);
+  } else if (dailyResult.alreadyClaimed){
+    ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='400 10px system-ui'; ctx.textAlign='center';
+    ctx.fillText('reward already claimed today',W/2,claimedY+16);
+  } else {
+    ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 10px system-ui'; ctx.textAlign='center';
+    ctx.fillText('score 500+ to earn gems',W/2,claimedY+16);
+  }
+
+  // Score card
+  const cardY=claimedY+40;
+  ctx.fillStyle='rgba(127,119,221,0.15)'; ctx.beginPath(); ctx.roundRect(W/2-125,cardY,250,58,10); ctx.fill();
+  ctx.strokeStyle='rgba(127,119,221,0.4)'; ctx.lineWidth=1; ctx.beginPath(); ctx.roundRect(W/2-125,cardY,250,58,10); ctx.stroke();
+  ctx.fillStyle='#AFA9EC'; ctx.font='500 10px system-ui'; ctx.textAlign='center';
+  ctx.fillText('DROPZONE — Daily Challenge',W/2,cardY+15);
+  ctx.fillStyle='#fff'; ctx.font='600 11px system-ui';
+  ctx.fillText(d.toLocaleDateString('en-US',{month:'short',day:'numeric'})+(title?' ['+title+']':'')+' · '+dailyResult.score.toLocaleString()+' · R'+dailyResult.round,W/2,cardY+31);
+  ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='400 9px system-ui';
+  ctx.fillText('Can you beat it? 🎯',W/2,cardY+46);
+
+  // Buttons — store y values for tap detection
+  const copyY=cardY+66;
+  const backY=copyY+42;
+  ctx.fillStyle='#7F77DD'; ctx.beginPath(); ctx.roundRect(W/2-75,copyY,150,32,9); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='600 11px system-ui'; ctx.textAlign='center';
+  ctx.fillText('📋 copy score card',W/2,copyY+21);
+  ctx.fillStyle='rgba(255,255,255,0.08)'; ctx.beginPath(); ctx.roundRect(W/2-75,backY,150,30,9); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='500 11px system-ui';
+  ctx.fillText('← back to menu',W/2,backY+20);
+  drawDailyResult._copyY=copyY; drawDailyResult._backY=backY;
 }
 
 // ── Loop ──────────────────────────────────────────────────────────────────────
@@ -1540,6 +1749,7 @@ function loop() {
   else if (screen==='settings')     { drawSettings(); }
   else if (screen==='achievements') { drawAchievements(); }
   else if (screen==='shop')         { drawShop(); }
+  else if (screen==='leaderboard')  { drawLeaderboard(); }
   else if (screen==='daily_result') { drawDailyResult(); for (const s of starfieldStars){s.y+=s.speed;if(s.y>H)s.y=0;} }
   else {
     update();
@@ -1558,6 +1768,7 @@ function idleDraw() {
     else if (screen==='settings') drawSettings();
     else if (screen==='achievements') drawAchievements();
     else if (screen==='shop') drawShop();
+    else if (screen==='leaderboard') drawLeaderboard();
     else if (screen==='daily_result') drawDailyResult();
     else drawGame();
   }
@@ -1568,11 +1779,12 @@ function idleDraw() {
 function getGameY(clientY) { const r=gc.getBoundingClientRect(); return (clientY-r.top)/(r.width/W); }
 
 function handleTap(gy, clientX) {
-  if (screen==='launch')       { launchTap(gy); return; }
-  if (screen==='settings')     { settingsTap(gy); return; }
-  if (screen==='achievements') { if (gy>=12&&gy<=42) { screen='launch'; syncHUD(); idleDraw(); } return; }
-  if (screen==='daily_result') { dailyResultTap(gy); return; }
-  if (screen==='shop')         { shopTap(gy); return; }
+  if (screen==='launch')        { launchTap(gy); return; }
+  if (screen==='settings')      { settingsTap(gy); return; }
+  if (screen==='achievements')  { if (gy>=12&&gy<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);} return; }
+  if (screen==='leaderboard')   { leaderboardTap(gy); return; }
+  if (screen==='daily_result')  { dailyResultTap(gy); return; }
+  if (screen==='shop')          { shopTap(gy); return; }
   if (adScreen==='offer') {
     if (gy>=H/2+24&&gy<=H/2+66){adScreen='watching';adTimer=300;}
     else if (gy>=H/2+74&&gy<=H/2+96){adScreen=false;triggerGameOver();}
@@ -1582,6 +1794,22 @@ function handleTap(gy, clientX) {
   if (onboardingStep>=0) {
     if (onboardingStep<3){onboardingStep++;}
     else{onboardingStep=-1;isOnboarding=false;onboardingDone=true;LS.set('dz_onboard',true);}
+    return;
+  }
+  if (usernamePromptActive) {
+    const by=H/2+42, bh=32;
+    if (gy>=by&&gy<=by+bh) {
+      const cx=clientToGame(clientX||0);
+      if (cx<W/2) {
+        username=usernameInput.trim().slice(0,16)||generateUsername();
+      } else {
+        username=generateUsername();
+      }
+      saveUsername(username);
+      const scores=loadScores();
+      if (scores.length>0){scores[0].name=username;saveScores(scores);}
+      usernamePromptActive=false; idleDraw();
+    }
     return;
   }
   if (homeConfirmPending) {
@@ -1610,7 +1838,8 @@ function launchTap(gy) {
       SFX.launch(); haptic(10);
       if (btn.label.includes('PLAY'))        { startGame(false); return; }
       if (btn.label.includes('Daily'))       { startGame(true);  return; }
-      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); idleDraw(); return; }
+      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); animRunning=true; requestAnimationFrame(loop); return; }
+      if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); idleDraw(); return; }
       if (btn.label.includes('Shop'))        {
         screen='shop'; shopScroll=0; syncHUD();
         const s=loadStats(); s.shopVisits=(s.shopVisits||0)+1; saveStats(s);
@@ -1622,19 +1851,27 @@ function launchTap(gy) {
 }
 
 function settingsTap(gy) {
-  if (gy>=12&&gy<=42) { screen='launch'; syncHUD(); idleDraw(); return; }
+  if (gy>=12&&gy<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);return;}
   const items=drawSettings._items||[];
   for (const item of items) {
     if (item.type==='toggle'&&item._y!=null&&gy>=item._y&&gy<=item._y+item._h) {
-      if (item.id==='sound') { soundEnabled=!soundEnabled; LS.set('dz_sound',soundEnabled); }
-      if (item.id==='vibe')  { vibrationEnabled=!vibrationEnabled; LS.set('dz_vibe',vibrationEnabled); }
+      if (item.id==='sound'){soundEnabled=!soundEnabled;LS.set('dz_sound',soundEnabled);}
+      if (item.id==='vibe') {vibrationEnabled=!vibrationEnabled;LS.set('dz_vibe',vibrationEnabled);}
       idleDraw(); return;
     }
   }
 }
 
+function leaderboardTap(gy) {
+  if (gy>=12&&gy<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);return;}
+  const tabs=drawLeaderboard._tabs||[];
+  for (const tab of tabs) {
+    if (gy>=tab._y&&gy<=tab._y+tab._h){leaderboardTab=tab.id;idleDraw();return;}
+  }
+}
+
 function shopTap(gameY) {
-  if (gameY>=12&&gameY<=42) { screen='launch'; syncHUD(); idleDraw(); return; }
+  if (gameY>=12&&gameY<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);return;}
   const all=[...SHOP_ITEMS,...EXCLUSIVE_COSMETICS];
   for (const item of all) {
     if (item._y==null) continue;
@@ -1643,7 +1880,7 @@ function shopTap(gameY) {
       if (isOwned(item.id)){
         equipped[slot]=equipped[slot]===item.id?undefined:item.id;
         saveEquipped(equipped);
-      } else if (SHOP_ITEMS.includes(item)&&gems>=item.cost) {
+      } else if (SHOP_ITEMS.includes(item)&&gems>=item.cost){
         gems-=item.cost; saveGems(gems); owned.push(item.id); saveOwned(owned);
         equipped[slot]=item.id; saveEquipped(equipped); SFX.gem(); haptic(15);
         const s=loadStats(); s.shopItemsBought=(s.shopItemsBought||0)+1; saveStats(s);
@@ -1655,13 +1892,15 @@ function shopTap(gameY) {
 }
 
 function dailyResultTap(gy) {
-  if (gy>=326&&gy<=364) {
+  const copyY=drawDailyResult._copyY||380;
+  const backY=drawDailyResult._backY||422;
+  if (gy>=copyY&&gy<=copyY+32) {
     const d=new Date(), title=getPlayerTitle();
-    const txt=`DROPZONE Daily Challenge\n${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}${title?' ['+title+']':''} · Score: ${dailyResult.score} · Round ${dailyResult.round}\nCan you beat it? 🎯 dropzone.app`;
+    const txt=`DROPZONE Daily Challenge\n${d.toLocaleDateString('en-US',{month:'short',day:'numeric'})}${title?' ['+title+']':''} · Score: ${dailyResult.score.toLocaleString()} · Round ${dailyResult.round}\nCan you beat it? 🎯`;
     try{navigator.clipboard.writeText(txt);}catch{}
     addPopup(W/2,H/2,'copied!','#5DCAA5'); return;
   }
-  if (gy>=380&&gy<=416){ screen='launch'; syncHUD(); idleDraw(); }
+  if (gy>=backY&&gy<=backY+30){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);}
 }
 
 // ── Input listeners ───────────────────────────────────────────────────────────
@@ -1686,11 +1925,24 @@ document.getElementById('rbtn').addEventListener('click',()=>{
   syncHUD(); animRunning=true; requestAnimationFrame(loop);
 });
 
+window.addEventListener('keydown',e=>{
+  if (!usernamePromptActive) return;
+  if (e.key==='Enter'){
+    username=usernameInput.trim().slice(0,16)||generateUsername();
+    saveUsername(username);
+    const scores=loadScores();
+    if (scores.length>0){scores[0].name=username;saveScores(scores);}
+    usernamePromptActive=false; idleDraw(); return;
+  }
+  if (e.key==='Backspace'){usernameInput=usernameInput.slice(0,-1);idleDraw();return;}
+  if (e.key.length===1&&usernameInput.length<16){usernameInput+=e.key;idleDraw();}
+});
+
 // ── Shop + Home buttons ───────────────────────────────────────────────────────
 
 function buildShopButton() {
   let hbtn=document.getElementById('home-btn');
-  if (!hbtn) {
+  if (!hbtn){
     hbtn=document.createElement('button');
     hbtn.id='home-btn';
     hbtn.style.cssText='padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px;margin-right:6px;';
@@ -1698,10 +1950,11 @@ function buildShopButton() {
     document.getElementById('button-row').appendChild(hbtn);
   }
   hbtn.onclick=()=>{
-    if (screen==='game') { homeConfirmPending=true; if(!animRunning){animRunning=true;requestAnimationFrame(loop);} idleDraw(); }
+    if (screen==='game'){homeConfirmPending=true;if(!animRunning){animRunning=true;requestAnimationFrame(loop);}idleDraw();}
   };
+
   let btn=document.getElementById('shop-btn');
-  if (!btn) {
+  if (!btn){
     btn=document.createElement('button');
     btn.id='shop-btn';
     btn.style.cssText='padding:5px 14px;border-radius:8px;border:1px solid rgba(127,119,221,0.4);background:rgba(127,119,221,0.12);color:#7F77DD;font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px;';
@@ -1709,7 +1962,7 @@ function buildShopButton() {
   }
   btn.textContent=isDailyMode?'📅 daily':'💎 '+gems;
   btn.onclick=()=>{
-    if (screen==='game'||screen==='shop') {
+    if (screen==='game'||screen==='shop'){
       screen=screen==='shop'?'game':'shop'; shopScroll=0;
       if (screen==='shop'){const s=loadStats();s.shopVisits=(s.shopVisits||0)+1;saveStats(s);}
       syncHUD();
@@ -1724,15 +1977,15 @@ function buildShopButton() {
 // ── syncHUD ───────────────────────────────────────────────────────────────────
 
 function syncHUD() {
-  const isGame = screen === 'game';
-  document.getElementById('hud').style.display   = isGame ? 'flex'  : 'none';
-  document.getElementById('bars').style.display  = isGame ? 'flex'  : 'none';
-  document.getElementById('msg').style.display   = isGame ? 'block' : 'none';
-  document.getElementById('rbtn').style.display  = 'none';
-  const sb = document.getElementById('shop-btn');
-  if (sb) sb.style.display = isGame ? 'inline-block' : 'none';
-  const hb = document.getElementById('home-btn');
-  if (hb) hb.style.display = isGame ? 'inline-block' : 'none';
+  const isGame=screen==='game';
+  document.getElementById('hud').style.display  =isGame?'flex' :'none';
+  document.getElementById('bars').style.display =isGame?'flex' :'none';
+  document.getElementById('msg').style.display  =isGame?'block':'none';
+  document.getElementById('rbtn').style.display ='none';
+  const sb=document.getElementById('shop-btn');
+  if (sb) sb.style.display=isGame?'inline-block':'none';
+  const hb=document.getElementById('home-btn');
+  if (hb) hb.style.display=isGame?'inline-block':'none';
 }
 
 // ── Start game ────────────────────────────────────────────────────────────────
@@ -1754,15 +2007,12 @@ function startGame(daily) {
   gamePegsHit=0; gameHundredSlot=0;
   gameStartTime=Date.now();
   consecutiveRoundsNoDeath=0; currentRoundNoDeath=true;
-  tokensThisDrop=0;
-  shakeTimer=0; shakeX=0; shakeY=0;
+  tokensThisDrop=0; shakeTimer=0; shakeX=0; shakeY=0;
   roundFlashTimer=0; roundFlashNum=0;
   isOnboarding=false; onboardingStep=-1;
-  if (!onboardingDone) { isOnboarding=true; onboardingStep=0; }
+  if (!onboardingDone){isOnboarding=true;onboardingStep=0;}
 
-  if (daily) {
-    const s=loadStats(); s.dailyChallengesPlayed=(s.dailyChallengesPlayed||0)+1; saveStats(s);
-  }
+  if (daily){const s=loadStats();s.dailyChallengesPlayed=(s.dailyChallengesPlayed||0)+1;saveStats(s);}
 
   document.getElementById('rbtn').style.display='none';
   const sb=document.getElementById('shop-btn');
@@ -1777,8 +2027,7 @@ function startGame(daily) {
 // ── Standalone functions ──────────────────────────────────────────────────────
 
 function triggerShake(intensity=6, duration=12) {
-  shakeTimer=duration;
-  shakeX=intensity; shakeY=intensity;
+  shakeTimer=duration; shakeX=intensity; shakeY=intensity;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
@@ -1788,6 +2037,7 @@ function init() {
   equipped=loadEquipped(); achieved=loadAchieved();
   soundEnabled=loadSoundPref(); vibrationEnabled=loadVibePref();
   onboardingDone=loadOnboarding();
+  username=loadUsername();
   screen='launch'; launchAnimT=0; animRunning=false;
   buildStarfield();
   buildShopButton();
@@ -1797,5 +2047,5 @@ function init() {
   requestAnimationFrame(loop);
 }
 
-window.addEventListener('resize',()=>{ resizeCanvas(); idleDraw(); });
+window.addEventListener('resize',()=>{resizeCanvas();idleDraw();});
 init();
