@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
+  <title>Dropzone</title>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body>
+  <div id="app">
+    <header id="hud">
+      <div class="stat"><span id="sv">0</span><label>score</label></div>
+      <div class="stat"><span id="bv">0</span><label>best</label></div>
+      <div class="stat"><span id="blv">3</span><label>balls</label></div>
+      <div class="stat"><span id="mv">x1</span><label>multi</label></div>
+      <div class="stat"><span id="rv">1</span><label>round</label></div>
+    </header>
+
+    <div id="bars">
+      <div class="bar-row">
+        <span class="bar-label">streak</span>
+        <div class="bar-track"><div id="streak-fill"></div></div>
+      </div>
+      <div class="bar-row">
+        <span class="bar-label">target</span>
+        <div class="bar-track"><div id="progress-fill"></div></div>
+        <span id="target-label">0 / 0</span>
+      </div>
+    </div>
+
+    <div id="canvas-wrap">
+      <canvas id="gc"></canvas>
+      <canvas id="ac"></canvas>
+    </div>
+
+    <div id="msg">aim and click to drop</div>
+    <button id="rbtn" style="display:none">play again</button>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

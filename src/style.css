@@ -1,0 +1,152 @@
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #ffffff;
+  --bg2: #f4f4f2;
+  --text: #1a1a18;
+  --text2: #888780;
+  --border: rgba(0,0,0,0.12);
+  --radius: 12px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #1e1e1c;
+    --bg2: #2c2c2a;
+    --text: #e8e8e4;
+    --text2: #888780;
+    --border: rgba(255,255,255,0.1);
+  }
+}
+
+html, body {
+  height: 100%;
+  background: var(--bg2);
+  font-family: system-ui, -apple-system, sans-serif;
+  color: var(--text);
+  -webkit-tap-highlight-color: transparent;
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0 1.5rem;
+}
+
+#hud {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 48px;
+}
+
+.stat span {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.1;
+  color: var(--text);
+}
+
+.stat label {
+  font-size: 11px;
+  color: var(--text2);
+  letter-spacing: 0.03em;
+}
+
+#bars {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 380px;
+  max-width: calc(100vw - 2rem);
+  margin-bottom: 6px;
+}
+
+.bar-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+.bar-label { min-width: 42px; }
+
+.bar-track {
+  flex: 1;
+  height: 5px;
+  background: var(--bg2);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+}
+
+.bar-track div {
+  height: 100%;
+  width: 0%;
+  border-radius: 3px;
+  transition: width 0.2s, background 0.3s;
+}
+
+#streak-fill { background: #7F77DD; }
+
+#target-label {
+  min-width: 56px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-size: 11px;
+  color: var(--text2);
+}
+
+#canvas-wrap {
+  position: relative;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+#gc, #ac {
+  display: block;
+  border-radius: var(--radius);
+  border: 1px solid var(--border);
+}
+
+#ac {
+  position: absolute;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+}
+
+#msg {
+  font-size: 13px;
+  color: var(--text2);
+  min-height: 18px;
+  text-align: center;
+  padding: 0 1rem;
+  margin-top: 8px;
+}
+
+#rbtn {
+  display: none;
+  padding: 8px 28px;
+  font-size: 14px;
+  font-family: inherit;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--text);
+  cursor: pointer;
+  margin-top: 10px;
+}
+
+#rbtn:hover { background: var(--bg2); }
+#rbtn:active { transform: scale(0.98); }
