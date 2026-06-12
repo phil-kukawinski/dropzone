@@ -942,7 +942,7 @@ function drawLaunch() {
   ctx.beginPath(); ctx.arc(W/2,ballY,BALL_R,0,Math.PI*2);
   ctx.fillStyle=th.ball; ctx.fill();
 
-  ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
+  ctx.fillStyle='#fff'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
   ctx.fillText('best: '+loadBest().toLocaleString()+'  |  💎 '+loadGems(),W/2,H-12);
 }
 
@@ -1689,6 +1689,17 @@ document.getElementById('rbtn').addEventListener('click',()=>{
 // ── Shop + Home buttons ───────────────────────────────────────────────────────
 
 function buildShopButton() {
+  let hbtn=document.getElementById('home-btn');
+  if (!hbtn) {
+    hbtn=document.createElement('button');
+    hbtn.id='home-btn';
+    hbtn.style.cssText='padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px;margin-right:6px;';
+    hbtn.textContent='⌂ menu';
+    document.getElementById('button-row').appendChild(hbtn);
+  }
+  hbtn.onclick=()=>{
+    if (screen==='game') { homeConfirmPending=true; if(!animRunning){animRunning=true;requestAnimationFrame(loop);} idleDraw(); }
+  };
   let btn=document.getElementById('shop-btn');
   if (!btn) {
     btn=document.createElement('button');
@@ -1707,18 +1718,6 @@ function buildShopButton() {
       if(!animRunning){animRunning=true;requestAnimationFrame(loop);}
       idleDraw();
     }
-  };
-
-  let hbtn=document.getElementById('home-btn');
-  if (!hbtn) {
-    hbtn=document.createElement('button');
-    hbtn.id='home-btn';
-    hbtn.style.cssText='padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px;margin-right:6px;';
-    hbtn.textContent='⌂ menu';
-    document.getElementById('button-row').appendChild(hbtn);
-  }
-  hbtn.onclick=()=>{
-    if (screen==='game') { homeConfirmPending=true; if(!animRunning){animRunning=true;requestAnimationFrame(loop);} idleDraw(); }
   };
 }
 
