@@ -44,7 +44,6 @@ const SHOP_ITEMS = [
 // ── Achievements ──────────────────────────────────────────────────────────────
 
 const ACHIEVEMENTS = [
-  // Score — single game best
   { id:'ach_score_500',      label:'First Blood',      desc:'Score 500 in one game',           cat:'score',   check:s=>s.best>=500,           reward:{id:'trail_gem',      label:'Gem Trail',        type:'trail'  }},
   { id:'ach_score_1k',       label:'Warmed Up',         desc:'Score 1,000 in one game',         cat:'score',   check:s=>s.best>=1000,          reward:{id:'theme_orange',   label:'Orange Ball',      type:'theme'  }},
   { id:'ach_score_5k',       label:'Getting Serious',   desc:'Score 5,000 in one game',         cat:'score',   check:s=>s.best>=5000,          reward:{id:'trail_glitch',   label:'Glitch Trail',     type:'trail'  }},
@@ -59,8 +58,6 @@ const ACHIEVEMENTS = [
   { id:'ach_score_5m',       label:'God Mode',          desc:'Score 5,000,000 in one game',     cat:'score',   check:s=>s.best>=5000000,       reward:{id:'theme_skull',    label:'Skull Ball',       type:'theme'  }},
   { id:'ach_score_10m',      label:'Mythic',            desc:'Score 10,000,000 in one game',    cat:'score',   check:s=>s.best>=10000000,      reward:{id:'theme_diamond',  label:'Diamond Ball',     type:'theme'  }},
   { id:'ach_score_50m',      label:'The Chosen One',    desc:'Score 50,000,000 in one game',    cat:'score',   check:s=>s.best>=50000000,      reward:{id:'bundle_chosen',  label:'Chosen title',     type:'title', title:'The Chosen One'}},
-
-  // Score — cumulative
   { id:'ach_total_1k',       label:'First Steps',       desc:'Earn 1,000 points total',         cat:'total',   check:s=>s.totalScore>=1000,         reward:{id:'rx_first_steps', label:'50 bonus gems',    type:'gems',  gems:50   }},
   { id:'ach_total_10k',      label:'Grinder',           desc:'Earn 10,000 points total',        cat:'total',   check:s=>s.totalScore>=10000,        reward:{id:'rx_grinder',     label:'100 bonus gems',   type:'gems',  gems:100  }},
   { id:'ach_total_50k',      label:'Hustler',           desc:'Earn 50,000 points total',        cat:'total',   check:s=>s.totalScore>=50000,        reward:{id:'rx_hustler',     label:'200 bonus gems',   type:'gems',  gems:200  }},
@@ -73,8 +70,6 @@ const ACHIEVEMENTS = [
   { id:'ach_total_100m',     label:'Century Club',      desc:'Earn 100,000,000 points total',   cat:'total',   check:s=>s.totalScore>=100000000,    reward:{id:'rx_100m',        label:'10,000 bonus gems',type:'gems',  gems:10000}},
   { id:'ach_total_500m',     label:'Half Billion',      desc:'Earn 500,000,000 points total',   cat:'total',   check:s=>s.totalScore>=500000000,    reward:{id:'rx_500m',        label:'25,000 bonus gems',type:'gems',  gems:25000}},
   { id:'ach_total_1b',       label:'Billionaire',       desc:'Earn 1,000,000,000 points total', cat:'total',   check:s=>s.totalScore>=1000000000,   reward:{id:'bundle_billion', label:'Billionaire title',type:'title', title:'Billionaire' }},
-
-  // Rounds
   { id:'ach_round_5',        label:'Just Getting Started',desc:'Reach round 5',                cat:'round',   check:s=>s.bestRound>=5,         reward:{id:'rx_r5',          label:'25 bonus gems',    type:'gems',  gems:25   }},
   { id:'ach_round_10',       label:'Finding Your Groove', desc:'Reach round 10',               cat:'round',   check:s=>s.bestRound>=10,        reward:{id:'board_white',    label:'White Board',      type:'board'  }},
   { id:'ach_round_15',       label:'Deep Run',            desc:'Reach round 15',               cat:'round',   check:s=>s.bestRound>=15,        reward:{id:'rx_r15',         label:'100 bonus gems',   type:'gems',  gems:100  }},
@@ -87,8 +82,6 @@ const ACHIEVEMENTS = [
   { id:'ach_round_200',      label:'Eternal',             desc:'Reach round 200',              cat:'round',   check:s=>s.bestRound>=200,       reward:{id:'bundle_eternal', label:'Eternal title',    type:'title', title:'Eternal'     }},
   { id:'ach_round_300',      label:'Beyond Limits',       desc:'Reach round 300',              cat:'round',   check:s=>s.bestRound>=300,       reward:{id:'rx_r300',        label:'15,000 bonus gems',type:'gems',  gems:15000}},
   { id:'ach_round_500',      label:'Infinite',            desc:'Reach round 500',              cat:'round',   check:s=>s.bestRound>=500,       reward:{id:'bundle_infinite',label:'Infinite title',   type:'title', title:'Infinite'    }},
-
-  // Skill / multiplier
   { id:'ach_multi_3',        label:'Getting Warmed Up',  desc:'Hit x3 multiplier in a game',   cat:'skill',   check:s=>s.hitMulti3>=1,         reward:{id:'rx_m3',          label:'25 bonus gems',    type:'gems',  gems:25   }},
   { id:'ach_multi_5',        label:'On Fire',            desc:'Hit x5 multiplier in a game',   cat:'skill',   check:s=>s.hitMulti5>=1,         reward:{id:'rx_m5',          label:'50 bonus gems',    type:'gems',  gems:50   }},
   { id:'ach_multi_10',       label:'Sharp Shooter',      desc:'Hit x10 multiplier in a game',  cat:'skill',   check:s=>s.hitMaxMulti>=1,       reward:{id:'trail_glitch',   label:'Glitch Trail',     type:'trail'  }},
@@ -103,8 +96,6 @@ const ACHIEVEMENTS = [
   { id:'ach_100slot_50',     label:'Sniper',             desc:'Land in the 100-pt slot 50 times total', cat:'skill', check:s=>s.hundredSlotHits>=50, reward:{id:'bundle_sniper',label:'Sniper title',    type:'title', title:'Sniper'      }},
   { id:'ach_pegs_100',       label:'Bounce Master',      desc:'Hit 100 pegs in a single drop', cat:'skill',   check:s=>s.maxPegsInDrop>=100,   reward:{id:'rx_bounce',      label:'100 bonus gems',   type:'gems',  gems:100  }},
   { id:'ach_nodeath_10',     label:'Ghost',              desc:'Go 10 rounds without hitting a death slot', cat:'skill', check:s=>s.maxRoundsNoDeath>=10, reward:{id:'bundle_ghost',label:'Ghost title',   type:'title', title:'Ghost'       }},
-
-  // Gems / economy
   { id:'ach_gem_1',          label:'First Gem',          desc:'Collect your first gem',         cat:'gems',    check:s=>s.totalGems>=1,         reward:{id:'rx_gem1',        label:'10 bonus gems',    type:'gems',  gems:10   }},
   { id:'ach_gem_10',         label:'Gem Finder',         desc:'Collect 10 gems lifetime',       cat:'gems',    check:s=>s.totalGems>=10,        reward:{id:'rx_gem10',       label:'20 bonus gems',    type:'gems',  gems:20   }},
   { id:'ach_gem_100',        label:'Gemstone',           desc:'Collect 100 gems lifetime',      cat:'gems',    check:s=>s.totalGems>=100,       reward:{id:'rx_gem100',      label:'50 bonus gems',    type:'gems',  gems:50   }},
@@ -119,8 +110,6 @@ const ACHIEVEMENTS = [
   { id:'ach_shop_all',       label:'Fully Loaded',       desc:'Own every shop item',            cat:'gems',    check:s=>s.shopItemsBought>=SHOP_ITEMS.length, reward:{id:'bundle_loaded',label:'Loaded title',  type:'title', title:'Loaded'      }},
   { id:'ach_token_100',      label:'Token Hoarder',      desc:'Collect 100 tokens lifetime',    cat:'gems',    check:s=>s.totalTokens>=100,     reward:{id:'rx_tok100',      label:'100 bonus gems',   type:'gems',  gems:100  }},
   { id:'ach_token_1k',       label:'Token Master',       desc:'Collect 1,000 tokens lifetime',  cat:'gems',    check:s=>s.totalTokens>=1000,    reward:{id:'bundle_tokmaster',label:'Token Master title',type:'title',title:'Token Master' }},
-
-  // Death / survival
   { id:'ach_death_first',    label:'Lucky',              desc:'Survive your first death slot',  cat:'death',   check:s=>s.deathsSurvived>=1,    reward:{id:'rx_lucky',       label:'15 bonus gems',    type:'gems',  gems:15   }},
   { id:'ach_death_10',       label:'Death Defier',       desc:'Survive 10 death slots',         cat:'death',   check:s=>s.deathsSurvived>=10,   reward:{id:'theme_skull',    label:'Skull Ball',       type:'theme'  }},
   { id:'ach_death_50',       label:'Hard to Kill',       desc:'Survive 50 death slots',         cat:'death',   check:s=>s.deathsSurvived>=50,   reward:{id:'rx_htk',         label:'300 bonus gems',   type:'gems',  gems:300  }},
@@ -133,8 +122,6 @@ const ACHIEVEMENTS = [
   { id:'ach_phoenix',        label:'Phoenix',            desc:'Revive and reach 5 more rounds', cat:'death',   check:s=>s.phoenixRounds>=5,     reward:{id:'bundle_phoenix', label:'Phoenix title',    type:'title', title:'Phoenix'     }},
   { id:'ach_laststand',      label:'Last Stand',         desc:'Advance a round with exactly 1 ball left', cat:'death', check:s=>s.lastStandWins>=1, reward:{id:'rx_laststand',label:'100 bonus gems',   type:'gems',  gems:100  }},
   { id:'ach_bonussave',      label:'Against All Odds',   desc:'Advance via bonus slot with 0 balls left', cat:'death', check:s=>s.bonusSlotSaves>=1, reward:{id:'bundle_odds', label:'Against All Odds title', type:'title', title:'Against All Odds'}},
-
-  // Meta / misc
   { id:'ach_games_1',        label:'First Timer',        desc:'Play your first game',           cat:'meta',    check:s=>s.gamesPlayed>=1,       reward:{id:'rx_games1',      label:'10 bonus gems',    type:'gems',  gems:10   }},
   { id:'ach_games_10',       label:'Regular',            desc:'Play 10 games',                  cat:'meta',    check:s=>s.gamesPlayed>=10,      reward:{id:'rx_games10',     label:'50 bonus gems',    type:'gems',  gems:50   }},
   { id:'ach_games_50',       label:'Habitual',           desc:'Play 50 games',                  cat:'meta',    check:s=>s.gamesPlayed>=50,      reward:{id:'rx_games50',     label:'150 bonus gems',   type:'gems',  gems:150  }},
@@ -300,6 +287,7 @@ function loadDailyBest(){ return LS.get('dz_daily', {}); }
 function saveDailyBest(o){ LS.set('dz_daily', o); }
 function loadSoundPref(){ return LS.get('dz_sound', true); }
 function loadVibePref() { return LS.get('dz_vibe', true); }
+function loadOnboarding(){ return LS.get('dz_onboard', false); }
 
 // ── State ─────────────────────────────────────────────────────────────────────
 
@@ -316,7 +304,6 @@ let pulseT = 0, launchAnimT = 0, starfieldStars = [];
 let adUsed = false, adScreen = false, adTimer = 0, homeConfirmPending = false;
 let isDailyMode = false, dailyRng = null, dailyResult = null;
 let soundEnabled = true, vibrationEnabled = true;
-// Per-game tracking
 let gameMaxMulti = 0, gameDeathHits = 0, roundPerfect = true;
 let adRoundAtRevive = 0, postReviveRounds = 0;
 let gamePegsHit = 0, gameHundredSlot = 0;
@@ -324,6 +311,8 @@ let gameStartTime = 0, consecutiveRoundsNoDeath = 0;
 let currentRoundNoDeath = true;
 let tokensThisDrop = 0;
 let shakeTimer = 0, shakeX = 0, shakeY = 0;
+let onboardingDone = false, onboardingStep = -1, isOnboarding = false;
+let roundFlashTimer = 0, roundFlashNum = 0;
 
 function isOwned(id)    { return owned.includes(id); }
 function isAchieved(id) { return achieved.includes(id); }
@@ -378,7 +367,7 @@ function checkAchievements() {
         else if (r.type === 'theme'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
         else if (r.type === 'board'  && r.id && !owned.includes(r.id)) { owned.push(r.id); }
         else if (r.type === 'ballfx' && r.id && !owned.includes(r.id)) { owned.push(r.id); }
-        else if (r.type === 'title') { /* title stored via achievement */ }
+        else if (r.type === 'title') { }
         else if (r.type === 'bundle') {
           if (r.trail  && !owned.includes(r.trail))  owned.push(r.trail);
           if (r.theme  && !owned.includes(r.theme))  owned.push(r.theme);
@@ -500,7 +489,7 @@ function spawnBalls(x) {
       pegsHit:0, stuckTimer:0, lastX:x, lastY:8, magnetTimer:0 });
   }
   pendingBalls=1; dropping=true;
-  tokensThisDrop = 0;
+  tokensThisDrop=0;
 }
 
 function addParticles(x,y,col,n=6) {
@@ -573,10 +562,8 @@ function resolveSlot(b) {
       addPopup(b.x,H-SLOT_H-22,'SHIELD!','#5DCAA5');
       addParticles(b.x,H-SLOT_H,'#5DCAA5',12);
     } else {
-      const hadOneBall = ballsLeft <= 1;
       ballsLeft=Math.max(0,ballsLeft-1); multiplier=1;
       gameDeathHits++; roundPerfect=false; currentRoundNoDeath=false;
-      SFX.death(); haptic([20,10,20]);
       addPopup(b.x,H-SLOT_H-22,'-1 ball  x1','#E24B4A');
       addParticles(b.x,H-SLOT_H,'#E24B4A',12);
     }
@@ -584,8 +571,6 @@ function resolveSlot(b) {
   }
 
   let pts=BASE_SCORES[slot]*multiplier;
-
-  // Track 100-slot hits
   if (BASE_SCORES[slot]===100) {
     gameHundredSlot++;
     const s=loadStats();
@@ -614,40 +599,30 @@ function resolveSlot(b) {
 
 function advanceRound() {
   SFX.roundUp(); haptic([10,5,10,5,10]);
-
-  // Last stand check
   if (ballsLeft===1) { const s=loadStats(); s.lastStandWins=(s.lastStandWins||0)+1; saveStats(s); }
-
   if (roundPerfect) { const stats=loadStats(); stats.perfectRounds=(stats.perfectRounds||0)+1; saveStats(stats); }
-
-  // Consecutive no-death tracking
   if (currentRoundNoDeath) {
     consecutiveRoundsNoDeath++;
     const s=loadStats();
     if (consecutiveRoundsNoDeath > (s.maxRoundsNoDeath||0)) { s.maxRoundsNoDeath=consecutiveRoundsNoDeath; saveStats(s); }
-  } else {
-    consecutiveRoundsNoDeath=0;
-  }
+  } else { consecutiveRoundsNoDeath=0; }
   currentRoundNoDeath=true;
-
   if (adUsed) {
     postReviveRounds++;
     if (postReviveRounds>=3) { const s=loadStats(); s.comebackRounds=Math.max(s.comebackRounds||0,3); saveStats(s); }
     if (postReviveRounds>=5) { const s=loadStats(); s.phoenixRounds=Math.max(s.phoenixRounds||0,5); saveStats(s); }
   }
-
-  // Speed run check
   if (round===3) {
     const elapsed=(Date.now()-gameStartTime)/1000;
     if (elapsed<120) { const s=loadStats(); s.speedRuns=(s.speedRuns||0)+1; saveStats(s); }
   }
-
   round++;
   const stats=loadStats(); if (round>stats.bestRound){stats.bestRound=round;saveStats(stats);}
   roundPerfect=true;
   const refill=Math.max(1,3-Math.floor(round/15));
   ballsLeft=Math.min(ballsLeft+refill,8);
   dropping=false; balls=[]; pendingRoundAdvance=false;
+  roundFlashTimer=60; roundFlashNum=round;
   buildBoard();
   setMsg('round '+round+'! need '+milestoneFor(round)+' total — click to drop');
   updateHUD();
@@ -664,7 +639,6 @@ function triggerGameOver() {
   if (gameMaxMulti>=5) stats.hitMulti5=(stats.hitMulti5||0)+1;
   stats.maxPegsInGame=Math.max(stats.maxPegsInGame||0,gamePegsHit);
   stats.hundredSlotInGame=Math.max(stats.hundredSlotInGame||0,gameHundredSlot);
-  // Night owl
   const hr=new Date().getHours();
   if (hr>=0&&hr<4) stats.nightOwlGames=(stats.nightOwlGames||0)+1;
   saveStats(stats);
@@ -699,11 +673,9 @@ function afterBallLands() {
 
 function update() {
   pulseT+=0.08;
-  if (shakeTimer>0) {
-  shakeTimer--;
-  shakeX=(Math.random()-0.5)*6*(shakeTimer/12);
-  shakeY=(Math.random()-0.5)*6*(shakeTimer/12);
-} else { shakeX=0; shakeY=0; }
+  if (shakeTimer>0) { shakeTimer--; shakeX=(Math.random()-0.5)*6*(shakeTimer/12); shakeY=(Math.random()-0.5)*6*(shakeTimer/12); }
+  else { shakeX=0; shakeY=0; }
+  if (roundFlashTimer>0) roundFlashTimer--;
   const t=Date.now()/1000;
   for (const o of obstacles) {
     if (o.type==='spinner'){o.angle=(o.angle||0)+o.speed;}
@@ -756,21 +728,16 @@ function update() {
       if (Math.hypot(b.x-tok.x,b.y-tok.y)<b.r+tok.r) {
         tok.hit=true; haptic(12);
         tokensThisDrop++;
-      if (tokensThisDrop >= 2) {
-        addPopup(W/2, H/2-20, tokensThisDrop+'x COMBO!', tokensThisDrop>=4?'#FFD700':tokensThisDrop>=3?'#EF9F27':'#D4537E');
-        addParticles(W/2, H/2, tokensThisDrop>=4?'#FFD700':'#D4537E', tokensThisDrop*4);
-      }
+        if (tokensThisDrop>=2) {
+          addPopup(W/2,H/2-20,tokensThisDrop+'x COMBO!',tokensThisDrop>=4?'#FFD700':tokensThisDrop>=3?'#EF9F27':'#D4537E');
+          addParticles(W/2,H/2,tokensThisDrop>=4?'#FFD700':'#D4537E',tokensThisDrop*4);
+        }
         const s=loadStats(); s.totalTokens=(s.totalTokens||0)+1; saveStats(s);
         if (tok.type==='x+1') {
           multiplier=Math.min(multiplier+1,10);
           if (multiplier>=3){const st=loadStats();st.hitMulti3=Math.max(st.hitMulti3||0,1);saveStats(st);}
           if (multiplier>=5){const st=loadStats();st.hitMulti5=Math.max(st.hitMulti5||0,1);saveStats(st);}
-          if (multiplier===10){
-            gameMaxMulti++;
-            const st=loadStats();
-            st.maxMultiInGame=Math.max(st.maxMultiInGame||0,gameMaxMulti);
-            saveStats(st);
-          }
+          if (multiplier===10){gameMaxMulti++;const st=loadStats();st.maxMultiInGame=Math.max(st.maxMultiInGame||0,gameMaxMulti);saveStats(st);}
           SFX.multiplier();
           addPopup(tok.x,tok.y-16,'x'+multiplier+'!','#D4537E');
           addParticles(tok.x,tok.y,'#D4537E',10); updateHUD();
@@ -884,6 +851,41 @@ function drawBall(b) {
   if (b.magnetTimer>0){ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2);ctx.strokeStyle='#378ADD';ctx.lineWidth=2;ctx.globalAlpha=0.6;ctx.stroke();ctx.globalAlpha=1;}
   ctx.beginPath(); ctx.arc(b.x,b.y,b.r*pulse,0,Math.PI*2);
   ctx.fillStyle=th.ball; ctx.fill();
+}
+
+// ── Draw onboarding ───────────────────────────────────────────────────────────
+
+function drawOnboarding() {
+  const steps = [
+    { title: 'Drop the ball', body: 'Click or tap anywhere to aim and drop. The ball bounces through pegs down into scoring slots.' },
+    { title: 'Score slots', body: 'Each slot scores different points. Hit the center 100-pt slot for big points. The 💎 slot gives you a free ball!' },
+    { title: 'Tokens', body: 'Floating tokens give bonuses — x+1 raises your multiplier, +ball loads extra balls, 💎 earns gems for the shop.' },
+    { title: 'Multiplier', body: 'Hit x+1 tokens to chain your multiplier up to x10. Death slots (💀) reset it and cost a ball — avoid them!' },
+  ];
+  const step = steps[onboardingStep];
+  if (!step) return;
+  ctx.fillStyle='rgba(18,18,28,0.88)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(127,119,221,0.15)';
+  ctx.beginPath(); ctx.roundRect(W/2-150,H/2-80,300,160,12); ctx.fill();
+  ctx.strokeStyle='rgba(127,119,221,0.4)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(W/2-150,H/2-80,300,160,12); ctx.stroke();
+  ctx.fillStyle='#fff'; ctx.font='600 16px system-ui'; ctx.textAlign='center';
+  ctx.fillText(step.title, W/2, H/2-44);
+  ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='400 12px system-ui';
+  const words=step.body.split(' '), maxW=260;
+  let line='', ly=H/2-18;
+  for (const w of words) {
+    const test=line+w+' ';
+    if (ctx.measureText(test).width>maxW&&line){ctx.fillText(line.trim(),W/2,ly);line=w+' ';ly+=18;}
+    else line=test;
+  }
+  if (line.trim()) ctx.fillText(line.trim(),W/2,ly);
+  ctx.fillStyle='#7F77DD';
+  ctx.beginPath(); ctx.roundRect(W/2-60,H/2+52,120,32,8); ctx.fill();
+  ctx.fillStyle='#fff'; ctx.font='600 12px system-ui';
+  ctx.fillText(onboardingStep<steps.length-1?'Next →':'Got it!', W/2, H/2+73);
+  ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 10px system-ui';
+  ctx.fillText((onboardingStep+1)+' / '+steps.length, W/2, H/2+96);
 }
 
 // ── Draw launch ───────────────────────────────────────────────────────────────
@@ -1065,89 +1067,87 @@ function drawAchievements() {
         ctx.fillText(ach.label,pad+42,y+20);
         ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 11px system-ui';
         ctx.fillText(ach.desc,pad+42,y+36);
-        // Progress bar
         if (!unlocked) {
           const stats=loadStats(); stats.best=loadBest();
           let cur=0, goal=1;
           const id=ach.id;
-          if (id==='ach_score_500')      {cur=stats.best;goal=500;}
-          else if (id==='ach_score_1k')  {cur=stats.best;goal=1000;}
-          else if (id==='ach_score_5k')  {cur=stats.best;goal=5000;}
-          else if (id==='ach_score_10k') {cur=stats.best;goal=10000;}
-          else if (id==='ach_score_25k') {cur=stats.best;goal=25000;}
-          else if (id==='ach_score_50k') {cur=stats.best;goal=50000;}
-          else if (id==='ach_score_100k'){cur=stats.best;goal=100000;}
-          else if (id==='ach_score_250k'){cur=stats.best;goal=250000;}
-          else if (id==='ach_score_500k'){cur=stats.best;goal=500000;}
-          else if (id==='ach_score_1m')  {cur=stats.best;goal=1000000;}
+          if (id==='ach_score_500')       {cur=stats.best;goal=500;}
+          else if (id==='ach_score_1k')   {cur=stats.best;goal=1000;}
+          else if (id==='ach_score_5k')   {cur=stats.best;goal=5000;}
+          else if (id==='ach_score_10k')  {cur=stats.best;goal=10000;}
+          else if (id==='ach_score_25k')  {cur=stats.best;goal=25000;}
+          else if (id==='ach_score_50k')  {cur=stats.best;goal=50000;}
+          else if (id==='ach_score_100k') {cur=stats.best;goal=100000;}
+          else if (id==='ach_score_250k') {cur=stats.best;goal=250000;}
+          else if (id==='ach_score_500k') {cur=stats.best;goal=500000;}
+          else if (id==='ach_score_1m')   {cur=stats.best;goal=1000000;}
           else if (id==='ach_score_2500k'){cur=stats.best;goal=2500000;}
-          else if (id==='ach_score_5m')  {cur=stats.best;goal=5000000;}
-          else if (id==='ach_score_10m') {cur=stats.best;goal=10000000;}
-          else if (id==='ach_score_50m') {cur=stats.best;goal=50000000;}
-          else if (id==='ach_total_1k')  {cur=stats.totalScore;goal=1000;}
-          else if (id==='ach_total_10k') {cur=stats.totalScore;goal=10000;}
-          else if (id==='ach_total_50k') {cur=stats.totalScore;goal=50000;}
-          else if (id==='ach_total_100k'){cur=stats.totalScore;goal=100000;}
-          else if (id==='ach_total_500k'){cur=stats.totalScore;goal=500000;}
-          else if (id==='ach_total_1m')  {cur=stats.totalScore;goal=1000000;}
-          else if (id==='ach_total_5m')  {cur=stats.totalScore;goal=5000000;}
-          else if (id==='ach_total_10m') {cur=stats.totalScore;goal=10000000;}
-          else if (id==='ach_total_50m') {cur=stats.totalScore;goal=50000000;}
-          else if (id==='ach_total_100m'){cur=stats.totalScore;goal=100000000;}
-          else if (id==='ach_total_500m'){cur=stats.totalScore;goal=500000000;}
-          else if (id==='ach_total_1b')  {cur=stats.totalScore;goal=1000000000;}
-          else if (id==='ach_round_5')   {cur=stats.bestRound;goal=5;}
-          else if (id==='ach_round_10')  {cur=stats.bestRound;goal=10;}
-          else if (id==='ach_round_15')  {cur=stats.bestRound;goal=15;}
-          else if (id==='ach_round_25')  {cur=stats.bestRound;goal=25;}
-          else if (id==='ach_round_35')  {cur=stats.bestRound;goal=35;}
-          else if (id==='ach_round_50')  {cur=stats.bestRound;goal=50;}
-          else if (id==='ach_round_75')  {cur=stats.bestRound;goal=75;}
-          else if (id==='ach_round_100') {cur=stats.bestRound;goal=100;}
-          else if (id==='ach_round_150') {cur=stats.bestRound;goal=150;}
-          else if (id==='ach_round_200') {cur=stats.bestRound;goal=200;}
-          else if (id==='ach_round_300') {cur=stats.bestRound;goal=300;}
-          else if (id==='ach_round_500') {cur=stats.bestRound;goal=500;}
+          else if (id==='ach_score_5m')   {cur=stats.best;goal=5000000;}
+          else if (id==='ach_score_10m')  {cur=stats.best;goal=10000000;}
+          else if (id==='ach_score_50m')  {cur=stats.best;goal=50000000;}
+          else if (id==='ach_total_1k')   {cur=stats.totalScore;goal=1000;}
+          else if (id==='ach_total_10k')  {cur=stats.totalScore;goal=10000;}
+          else if (id==='ach_total_50k')  {cur=stats.totalScore;goal=50000;}
+          else if (id==='ach_total_100k') {cur=stats.totalScore;goal=100000;}
+          else if (id==='ach_total_500k') {cur=stats.totalScore;goal=500000;}
+          else if (id==='ach_total_1m')   {cur=stats.totalScore;goal=1000000;}
+          else if (id==='ach_total_5m')   {cur=stats.totalScore;goal=5000000;}
+          else if (id==='ach_total_10m')  {cur=stats.totalScore;goal=10000000;}
+          else if (id==='ach_total_50m')  {cur=stats.totalScore;goal=50000000;}
+          else if (id==='ach_total_100m') {cur=stats.totalScore;goal=100000000;}
+          else if (id==='ach_total_500m') {cur=stats.totalScore;goal=500000000;}
+          else if (id==='ach_total_1b')   {cur=stats.totalScore;goal=1000000000;}
+          else if (id==='ach_round_5')    {cur=stats.bestRound;goal=5;}
+          else if (id==='ach_round_10')   {cur=stats.bestRound;goal=10;}
+          else if (id==='ach_round_15')   {cur=stats.bestRound;goal=15;}
+          else if (id==='ach_round_25')   {cur=stats.bestRound;goal=25;}
+          else if (id==='ach_round_35')   {cur=stats.bestRound;goal=35;}
+          else if (id==='ach_round_50')   {cur=stats.bestRound;goal=50;}
+          else if (id==='ach_round_75')   {cur=stats.bestRound;goal=75;}
+          else if (id==='ach_round_100')  {cur=stats.bestRound;goal=100;}
+          else if (id==='ach_round_150')  {cur=stats.bestRound;goal=150;}
+          else if (id==='ach_round_200')  {cur=stats.bestRound;goal=200;}
+          else if (id==='ach_round_300')  {cur=stats.bestRound;goal=300;}
+          else if (id==='ach_round_500')  {cur=stats.bestRound;goal=500;}
           else if (id==='ach_multi_10x5games'){cur=stats.hitMaxMulti;goal=5;}
           else if (id==='ach_multi_10x25'){cur=stats.hitMaxMulti;goal=25;}
-          else if (id==='ach_perfect_5') {cur=stats.perfectRounds;goal=5;}
-          else if (id==='ach_perfect_25'){cur=stats.perfectRounds;goal=25;}
-          else if (id==='ach_100slot_10'){cur=stats.hundredSlotHits;goal=10;}
-          else if (id==='ach_100slot_50'){cur=stats.hundredSlotHits;goal=50;}
-          else if (id==='ach_gem_1')     {cur=stats.totalGems;goal=1;}
-          else if (id==='ach_gem_10')    {cur=stats.totalGems;goal=10;}
-          else if (id==='ach_gem_100')   {cur=stats.totalGems;goal=100;}
-          else if (id==='ach_gem_500')   {cur=stats.totalGems;goal=500;}
-          else if (id==='ach_gem_2500')  {cur=stats.totalGems;goal=2500;}
-          else if (id==='ach_gem_10k')   {cur=stats.totalGems;goal=10000;}
-          else if (id==='ach_gem_50k')   {cur=stats.totalGems;goal=50000;}
-          else if (id==='ach_shop_1')    {cur=stats.shopItemsBought;goal=1;}
-          else if (id==='ach_shop_5')    {cur=stats.shopItemsBought;goal=5;}
-          else if (id==='ach_shop_10')   {cur=stats.shopItemsBought;goal=10;}
-          else if (id==='ach_shop_all')  {cur=stats.shopItemsBought;goal=SHOP_ITEMS.length;}
-          else if (id==='ach_token_100') {cur=stats.totalTokens;goal=100;}
-          else if (id==='ach_token_1k')  {cur=stats.totalTokens;goal=1000;}
-          else if (id==='ach_death_10')  {cur=stats.deathsSurvived;goal=10;}
-          else if (id==='ach_death_50')  {cur=stats.deathsSurvived;goal=50;}
-          else if (id==='ach_death_200') {cur=stats.deathsSurvived;goal=200;}
-          else if (id==='ach_shield_10') {cur=stats.shieldUsed;goal=10;}
-          else if (id==='ach_shield_50') {cur=stats.shieldUsed;goal=50;}
-          else if (id==='ach_games_10')  {cur=stats.gamesPlayed;goal=10;}
-          else if (id==='ach_games_50')  {cur=stats.gamesPlayed;goal=50;}
-          else if (id==='ach_games_100') {cur=stats.gamesPlayed;goal=100;}
-          else if (id==='ach_games_500') {cur=stats.gamesPlayed;goal=500;}
-          else if (id==='ach_games_1k')  {cur=stats.gamesPlayed;goal=1000;}
-          else if (id==='ach_daily_7')   {cur=stats.dailyChallengesPlayed;goal=7;}
-          else if (id==='ach_daily_30')  {cur=stats.dailyChallengesPlayed;goal=30;}
-          else if (id==='ach_balls_100') {cur=stats.totalBalls;goal=100;}
-          else if (id==='ach_balls_1k')  {cur=stats.totalBalls;goal=1000;}
-          else if (id==='ach_balls_10k') {cur=stats.totalBalls;goal=10000;}
-          else if (id==='ach_magnet_10') {cur=stats.magnetCollected;goal=10;}
-          else if (id==='ach_magnet_50') {cur=stats.magnetCollected;goal=50;}
+          else if (id==='ach_perfect_5')  {cur=stats.perfectRounds;goal=5;}
+          else if (id==='ach_perfect_25') {cur=stats.perfectRounds;goal=25;}
+          else if (id==='ach_100slot_10') {cur=stats.hundredSlotHits;goal=10;}
+          else if (id==='ach_100slot_50') {cur=stats.hundredSlotHits;goal=50;}
+          else if (id==='ach_gem_1')      {cur=stats.totalGems;goal=1;}
+          else if (id==='ach_gem_10')     {cur=stats.totalGems;goal=10;}
+          else if (id==='ach_gem_100')    {cur=stats.totalGems;goal=100;}
+          else if (id==='ach_gem_500')    {cur=stats.totalGems;goal=500;}
+          else if (id==='ach_gem_2500')   {cur=stats.totalGems;goal=2500;}
+          else if (id==='ach_gem_10k')    {cur=stats.totalGems;goal=10000;}
+          else if (id==='ach_gem_50k')    {cur=stats.totalGems;goal=50000;}
+          else if (id==='ach_shop_1')     {cur=stats.shopItemsBought;goal=1;}
+          else if (id==='ach_shop_5')     {cur=stats.shopItemsBought;goal=5;}
+          else if (id==='ach_shop_10')    {cur=stats.shopItemsBought;goal=10;}
+          else if (id==='ach_shop_all')   {cur=stats.shopItemsBought;goal=SHOP_ITEMS.length;}
+          else if (id==='ach_token_100')  {cur=stats.totalTokens;goal=100;}
+          else if (id==='ach_token_1k')   {cur=stats.totalTokens;goal=1000;}
+          else if (id==='ach_death_10')   {cur=stats.deathsSurvived;goal=10;}
+          else if (id==='ach_death_50')   {cur=stats.deathsSurvived;goal=50;}
+          else if (id==='ach_death_200')  {cur=stats.deathsSurvived;goal=200;}
+          else if (id==='ach_shield_10')  {cur=stats.shieldUsed;goal=10;}
+          else if (id==='ach_shield_50')  {cur=stats.shieldUsed;goal=50;}
+          else if (id==='ach_games_10')   {cur=stats.gamesPlayed;goal=10;}
+          else if (id==='ach_games_50')   {cur=stats.gamesPlayed;goal=50;}
+          else if (id==='ach_games_100')  {cur=stats.gamesPlayed;goal=100;}
+          else if (id==='ach_games_500')  {cur=stats.gamesPlayed;goal=500;}
+          else if (id==='ach_games_1k')   {cur=stats.gamesPlayed;goal=1000;}
+          else if (id==='ach_daily_7')    {cur=stats.dailyChallengesPlayed;goal=7;}
+          else if (id==='ach_daily_30')   {cur=stats.dailyChallengesPlayed;goal=30;}
+          else if (id==='ach_balls_100')  {cur=stats.totalBalls;goal=100;}
+          else if (id==='ach_balls_1k')   {cur=stats.totalBalls;goal=1000;}
+          else if (id==='ach_balls_10k')  {cur=stats.totalBalls;goal=10000;}
+          else if (id==='ach_magnet_10')  {cur=stats.magnetCollected;goal=10;}
+          else if (id==='ach_magnet_50')  {cur=stats.magnetCollected;goal=50;}
           else if (id==='ach_pegs_total_10k'){cur=stats.totalPegsHit;goal=10000;}
           else if (id==='ach_unlocked_10'){cur=stats.achievementsUnlocked;goal=10;}
           else if (id==='ach_unlocked_50'){cur=stats.achievementsUnlocked;goal=50;}
-
           const pct=Math.min(1,cur/goal);
           const bx=pad+42, bw=W-pad*2-42-8, bh=4, by=y+48;
           ctx.fillStyle='rgba(255,255,255,0.1)';
@@ -1196,6 +1196,7 @@ function drawGame() {
       g.addColorStop(0,'rgba(255,100,0,0.08)'); g.addColorStop(1,'rgba(255,0,0,0)');
       ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     }
+  }
 
   if (isDailyMode){
     ctx.fillStyle='rgba(93,202,165,0.12)'; ctx.fillRect(0,0,W,20);
@@ -1305,13 +1306,96 @@ function drawGame() {
     ctx.globalAlpha=1;
   }
 
+  // Round flash animation
+  if (roundFlashTimer>0) {
+    const alpha=roundFlashTimer>30?1:(roundFlashTimer/30);
+    const scale=roundFlashTimer>45?1+(60-roundFlashTimer)*0.02:1;
+    ctx.globalAlpha=alpha*0.85;
+    ctx.fillStyle='rgba(18,18,28,0.7)'; ctx.fillRect(0,0,W,H);
+    ctx.globalAlpha=alpha;
+    ctx.save();
+    ctx.translate(W/2,H/2);
+    ctx.scale(scale,scale);
+    ctx.fillStyle='#7F77DD'; ctx.font='700 56px system-ui'; ctx.textAlign='center';
+    ctx.fillText('ROUND',0,-20);
+    ctx.fillStyle='#fff'; ctx.font='700 72px system-ui';
+    ctx.fillText(roundFlashNum,0,62);
+    ctx.restore();
+    ctx.globalAlpha=1;
+  }
+
   if (gameOver&&!isDailyMode) {
     ctx.fillStyle='rgba(18,18,28,0.92)'; ctx.fillRect(0,0,W,H);
-    ctx.fillStyle='#F0997B'; ctx.font='600 24px system-ui'; ctx.textAlign='center'; ctx.fillText('game over',W/2,H/2-60);
-    ctx.fillStyle='#AFA9EC'; ctx.font='500 15px system-ui'; ctx.fillText('round '+round+'  —  score: '+score,W/2,H/2-30);
-    ctx.fillStyle='#EF9F27'; ctx.font='600 14px system-ui'; ctx.fillText('best: '+best,W/2,H/2-6);
-    ctx.fillStyle='#5DCAA5'; ctx.font='500 13px system-ui'; ctx.fillText('💎 '+gems+' gems total',W/2,H/2+18);
-    ctx.fillStyle='#888780'; ctx.font='400 11px system-ui'; ctx.fillText('visit the shop to spend your gems',W/2,H/2+38);
+    ctx.fillStyle='#F0997B'; ctx.font='600 24px system-ui'; ctx.textAlign='center';
+    ctx.fillText('game over',W/2,H/2-110);
+    ctx.fillStyle='#AFA9EC'; ctx.font='500 14px system-ui';
+    ctx.fillText('round '+round+'  —  score: '+score.toLocaleString(),W/2,H/2-84);
+    ctx.fillStyle='#EF9F27'; ctx.font='600 13px system-ui';
+    ctx.fillText('best: '+best.toLocaleString(),W/2,H/2-62);
+    ctx.fillStyle='#5DCAA5'; ctx.font='500 12px system-ui';
+    ctx.fillText('💎 '+gems+' gems',W/2,H/2-42);
+
+    const stats=loadStats(); stats.best=loadBest();
+    const close=[];
+    for (const ach of ACHIEVEMENTS) {
+      if (isAchieved(ach.id)) continue;
+      let cur=0, goal=1;
+      const id=ach.id;
+      if (id==='ach_score_500')       {cur=stats.best;goal=500;}
+      else if (id==='ach_score_1k')   {cur=stats.best;goal=1000;}
+      else if (id==='ach_score_5k')   {cur=stats.best;goal=5000;}
+      else if (id==='ach_score_10k')  {cur=stats.best;goal=10000;}
+      else if (id==='ach_score_25k')  {cur=stats.best;goal=25000;}
+      else if (id==='ach_score_50k')  {cur=stats.best;goal=50000;}
+      else if (id==='ach_score_100k') {cur=stats.best;goal=100000;}
+      else if (id==='ach_total_1k')   {cur=stats.totalScore;goal=1000;}
+      else if (id==='ach_total_10k')  {cur=stats.totalScore;goal=10000;}
+      else if (id==='ach_total_50k')  {cur=stats.totalScore;goal=50000;}
+      else if (id==='ach_total_100k') {cur=stats.totalScore;goal=100000;}
+      else if (id==='ach_round_5')    {cur=stats.bestRound;goal=5;}
+      else if (id==='ach_round_10')   {cur=stats.bestRound;goal=10;}
+      else if (id==='ach_round_15')   {cur=stats.bestRound;goal=15;}
+      else if (id==='ach_round_25')   {cur=stats.bestRound;goal=25;}
+      else if (id==='ach_games_1')    {cur=stats.gamesPlayed;goal=1;}
+      else if (id==='ach_games_10')   {cur=stats.gamesPlayed;goal=10;}
+      else if (id==='ach_games_50')   {cur=stats.gamesPlayed;goal=50;}
+      else if (id==='ach_balls_100')  {cur=stats.totalBalls;goal=100;}
+      else if (id==='ach_balls_1k')   {cur=stats.totalBalls;goal=1000;}
+      else if (id==='ach_death_10')   {cur=stats.deathsSurvived;goal=10;}
+      else if (id==='ach_gem_1')      {cur=stats.totalGems;goal=1;}
+      else if (id==='ach_gem_10')     {cur=stats.totalGems;goal=10;}
+      else if (id==='ach_gem_100')    {cur=stats.totalGems;goal=100;}
+      else { continue; }
+      const pct=cur/goal;
+      if (pct>=0.5&&pct<1) close.push({ach,pct,cur,goal});
+    }
+    close.sort((a,b)=>b.pct-a.pct);
+    const top=close.slice(0,3);
+    if (top.length>0) {
+      ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='500 10px system-ui'; ctx.textAlign='center';
+      ctx.fillText('CLOSE TO UNLOCKING',W/2,H/2-16);
+      top.forEach((item,i)=>{
+        const cy=H/2+4+i*44;
+        ctx.fillStyle='rgba(255,255,255,0.06)';
+        ctx.beginPath(); ctx.roundRect(W/2-140,cy,280,36,6); ctx.fill();
+        ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='500 11px system-ui'; ctx.textAlign='left';
+        ctx.fillText(item.ach.label,W/2-132,cy+13);
+        ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 10px system-ui';
+        ctx.fillText(item.ach.desc,W/2-132,cy+26);
+        const bx=W/2-132,bw=200,bh=3,by=cy+32;
+        ctx.fillStyle='rgba(255,255,255,0.1)';
+        ctx.beginPath(); ctx.roundRect(bx,by,bw,bh,2); ctx.fill();
+        ctx.fillStyle='#EF9F27';
+        ctx.beginPath(); ctx.roundRect(bx,by,bw*item.pct,bh,2); ctx.fill();
+        const dispCur=item.cur>=1000?(item.cur/1000).toFixed(1)+'K':item.cur;
+        const dispGoal=item.goal>=1000?(item.goal/1000).toFixed(0)+'K':item.goal;
+        ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='400 9px system-ui'; ctx.textAlign='right';
+        ctx.fillText(dispCur+' / '+dispGoal,W/2+140,by+3);
+      });
+    } else {
+      ctx.fillStyle='#888780'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
+      ctx.fillText('visit the shop to spend your gems',W/2,H/2+10);
+    }
   }
 
   if (homeConfirmPending) {
@@ -1329,8 +1413,9 @@ function drawGame() {
     ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='600 13px system-ui';
     ctx.fillText('Keep playing',W/2+64,H/2+28);
   }
-  if (shakeX||shakeY) ctx.translate(-shakeX, -shakeY);
-}
+
+  if (onboardingStep>=0) drawOnboarding();
+  if (shakeX||shakeY) ctx.translate(-shakeX,-shakeY);
 }
 
 // ── Draw ad screen ────────────────────────────────────────────────────────────
@@ -1494,9 +1579,14 @@ function handleTap(gy, clientX) {
     return;
   }
   if (adScreen==='watching') return;
+  if (onboardingStep>=0) {
+    if (onboardingStep<3){onboardingStep++;}
+    else{onboardingStep=-1;isOnboarding=false;onboardingDone=true;LS.set('dz_onboard',true);}
+    return;
+  }
   if (homeConfirmPending) {
     if (gy>=H/2+4&&gy<=H/2+42) {
-      if (clientToGame(clientX||0) < W/2) {
+      if (clientToGame(clientX||0)<W/2) {
         homeConfirmPending=false; screen='launch'; syncHUD(); idleDraw();
       } else {
         homeConfirmPending=false; idleDraw();
@@ -1636,9 +1726,9 @@ function buildShopButton() {
 
 function syncHUD() {
   const isGame = screen === 'game';
-  document.getElementById('hud').style.display   = isGame ? 'flex'         : 'none';
-  document.getElementById('bars').style.display  = isGame ? 'flex'         : 'none';
-  document.getElementById('msg').style.display   = isGame ? 'block'        : 'none';
+  document.getElementById('hud').style.display   = isGame ? 'flex'  : 'none';
+  document.getElementById('bars').style.display  = isGame ? 'flex'  : 'none';
+  document.getElementById('msg').style.display   = isGame ? 'block' : 'none';
   document.getElementById('rbtn').style.display  = 'none';
   const sb = document.getElementById('shop-btn');
   if (sb) sb.style.display = isGame ? 'inline-block' : 'none';
@@ -1665,8 +1755,11 @@ function startGame(daily) {
   gamePegsHit=0; gameHundredSlot=0;
   gameStartTime=Date.now();
   consecutiveRoundsNoDeath=0; currentRoundNoDeath=true;
-  tokensThisDrop = 0;
-  shakeTimer = 0; shakeX = 0; shakeY = 0;
+  tokensThisDrop=0;
+  shakeTimer=0; shakeX=0; shakeY=0;
+  roundFlashTimer=0; roundFlashNum=0;
+  isOnboarding=false; onboardingStep=-1;
+  if (!onboardingDone) { isOnboarding=true; onboardingStep=0; }
 
   if (daily) {
     const s=loadStats(); s.dailyChallengesPlayed=(s.dailyChallengesPlayed||0)+1; saveStats(s);
@@ -1680,8 +1773,9 @@ function startGame(daily) {
   buildBoard(); updateHUD(); resizeCanvas();
   checkAchievements();
   if (!animRunning){animRunning=true;requestAnimationFrame(loop);}
+}
 
-  }
+// ── Standalone functions ──────────────────────────────────────────────────────
 
 function triggerShake(intensity=6, duration=12) {
   shakeTimer=duration;
@@ -1694,6 +1788,7 @@ function init() {
   best=loadBest(); gems=loadGems(); owned=loadOwned();
   equipped=loadEquipped(); achieved=loadAchieved();
   soundEnabled=loadSoundPref(); vibrationEnabled=loadVibePref();
+  onboardingDone=loadOnboarding();
   screen='launch'; launchAnimT=0; animRunning=false;
   buildStarfield();
   buildShopButton();
