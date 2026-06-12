@@ -1587,7 +1587,8 @@ function handleTap(gy, clientX) {
   if (homeConfirmPending) {
     if (gy>=H/2+4&&gy<=H/2+42) {
       if (clientToGame(clientX||0)<W/2) {
-        homeConfirmPending=false; screen='launch'; syncHUD(); idleDraw();
+        homeConfirmPending=false; screen='launch'; syncHUD();
+        animRunning=true; requestAnimationFrame(loop);
       } else {
         homeConfirmPending=false; idleDraw();
       }
@@ -1682,8 +1683,7 @@ gc.addEventListener('touchend',e=>{
 
 document.getElementById('rbtn').addEventListener('click',()=>{
   screen='launch'; soundEnabled=LS.get('dz_sound',true); vibrationEnabled=LS.get('dz_vibe',true);
-  syncHUD(); idleDraw();
-  if(!animRunning){animRunning=true;requestAnimationFrame(loop);}
+  syncHUD(); animRunning=true; requestAnimationFrame(loop);
 });
 
 // ── Shop + Home buttons ───────────────────────────────────────────────────────
