@@ -43,3 +43,4 @@ dropzone/
 ## Extending
 
 All game constants are at the top of `src/main.js` — `GRAVITY`, `BOUNCE`, `BASE_SCORES`, etc. The round target curve is in `roundTargetFor(r)`. Obstacle types live in `buildObstacles()`.
+# dropzone
