@@ -210,7 +210,7 @@ function playArpeggio(freqs, type, noteDur, volume) {
 }
 
 const SFX = {
-  peg:        () => playTone(440 + Math.random() * 120, 'square', 0.04, 0.08),
+  peg:        (pegY) => { const row=Math.round((pegY-60)/50); playTone(880-row*60+Math.random()*30, 'square', 0.04, 0.08); },
   score:      (pts) => playTone(pts >= 100 ? 880 : pts >= 50 ? 660 : 440, 'square', 0.1, 0.12),
   token:      () => playArpeggio([523, 659, 784], 'square', 0.08, 0.12),
   gem:        () => playArpeggio([784, 988, 1175], 'square', 0.07, 0.1),
@@ -322,6 +322,8 @@ let adRoundAtRevive = 0, postReviveRounds = 0;
 let gamePegsHit = 0, gameHundredSlot = 0;
 let gameStartTime = 0, consecutiveRoundsNoDeath = 0;
 let currentRoundNoDeath = true;
+let tokensThisDrop = 0;
+let shakeTimer = 0, shakeX = 0, shakeY = 0;
 
 function isOwned(id)    { return owned.includes(id); }
 function isAchieved(id) { return achieved.includes(id); }
@@ -498,6 +500,7 @@ function spawnBalls(x) {
       pegsHit:0, stuckTimer:0, lastX:x, lastY:8, magnetTimer:0 });
   }
   pendingBalls=1; dropping=true;
+  tokensThisDrop = 0;
 }
 
 function addParticles(x,y,col,n=6) {
@@ -560,6 +563,8 @@ function resolveSlot(b) {
   const isBonus=bonusSlots.includes(slot), isDeath=deathSlots.includes(slot);
 
   if (isDeath) {
+    SFX.death(); haptic([20,10,20]);
+    triggerShake();
     if (shieldActive) {
       shieldActive=false; SFX.shield(); haptic(15);
       const stats=loadStats(); stats.deathsSurvived++; stats.shieldUsed=(stats.shieldUsed||0)+1;
@@ -694,6 +699,11 @@ function afterBallLands() {
 
 function update() {
   pulseT+=0.08;
+  if (shakeTimer>0) {
+  shakeTimer--;
+  shakeX=(Math.random()-0.5)*6*(shakeTimer/12);
+  shakeY=(Math.random()-0.5)*6*(shakeTimer/12);
+} else { shakeX=0; shakeY=0; }
   const t=Date.now()/1000;
   for (const o of obstacles) {
     if (o.type==='spinner'){o.angle=(o.angle||0)+o.speed;}
@@ -736,7 +746,7 @@ function update() {
           const s=loadStats(); s.totalPegsHit=(s.totalPegsHit||0)+1;
           s.maxPegsInDrop=Math.max(s.maxPegsInDrop||0,b.pegsHit);
           saveStats(s);
-          SFX.peg(); addParticles(p.x,p.y,dark()?'#AFA9EC':'#7F77DD',3);
+          SFX.peg(p.y); addParticles(p.x,p.y,dark()?'#AFA9EC':'#7F77DD',3);
         }
       }
       if (p.ht>0){p.ht--;if(p.ht===0)p.hit=false;}
@@ -745,6 +755,11 @@ function update() {
       if (tok.hit) continue;
       if (Math.hypot(b.x-tok.x,b.y-tok.y)<b.r+tok.r) {
         tok.hit=true; haptic(12);
+        tokensThisDrop++;
+      if (tokensThisDrop >= 2) {
+        addPopup(W/2, H/2-20, tokensThisDrop+'x COMBO!', tokensThisDrop>=4?'#FFD700':tokensThisDrop>=3?'#EF9F27':'#D4537E');
+        addParticles(W/2, H/2, tokensThisDrop>=4?'#FFD700':'#D4537E', tokensThisDrop*4);
+      }
         const s=loadStats(); s.totalTokens=(s.totalTokens||0)+1; saveStats(s);
         if (tok.type==='x+1') {
           multiplier=Math.min(multiplier+1,10);
@@ -1163,6 +1178,7 @@ function drawAchievements() {
 
 function drawGame() {
   ctx.clearRect(0,0,W,H);
+  if (shakeX||shakeY) ctx.translate(shakeX, shakeY);
   const skin=getBoardSkin(), dk=dark();
   ctx.fillStyle=boardBg();
   ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
@@ -1180,7 +1196,6 @@ function drawGame() {
       g.addColorStop(0,'rgba(255,100,0,0.08)'); g.addColorStop(1,'rgba(255,0,0,0)');
       ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     }
-  }
 
   if (isDailyMode){
     ctx.fillStyle='rgba(93,202,165,0.12)'; ctx.fillRect(0,0,W,20);
@@ -1314,6 +1329,8 @@ function drawGame() {
     ctx.fillStyle='rgba(255,255,255,0.8)'; ctx.font='600 13px system-ui';
     ctx.fillText('Keep playing',W/2+64,H/2+28);
   }
+  if (shakeX||shakeY) ctx.translate(-shakeX, -shakeY);
+}
 }
 
 // ── Draw ad screen ────────────────────────────────────────────────────────────
@@ -1648,6 +1665,8 @@ function startGame(daily) {
   gamePegsHit=0; gameHundredSlot=0;
   gameStartTime=Date.now();
   consecutiveRoundsNoDeath=0; currentRoundNoDeath=true;
+  tokensThisDrop = 0;
+  shakeTimer = 0; shakeX = 0; shakeY = 0;
 
   if (daily) {
     const s=loadStats(); s.dailyChallengesPlayed=(s.dailyChallengesPlayed||0)+1; saveStats(s);
@@ -1661,6 +1680,12 @@ function startGame(daily) {
   buildBoard(); updateHUD(); resizeCanvas();
   checkAchievements();
   if (!animRunning){animRunning=true;requestAnimationFrame(loop);}
+
+  }
+
+function triggerShake(intensity=6, duration=12) {
+  shakeTimer=duration;
+  shakeX=intensity; shakeY=intensity;
 }
 
 // ── Init ──────────────────────────────────────────────────────────────────────
