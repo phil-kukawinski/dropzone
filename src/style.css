@@ -1,152 +1,112 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-:root {
-  --bg: #ffffff;
-  --bg2: #f4f4f2;
-  --text: #1a1a18;
-  --text2: #888780;
-  --border: rgba(0,0,0,0.12);
-  --radius: 12px;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #1e1e1c;
-    --bg2: #2c2c2a;
-    --text: #e8e8e4;
-    --text2: #888780;
-    --border: rgba(255,255,255,0.1);
-  }
-}
-
-html, body {
-  height: 100%;
-  background: var(--bg2);
-  font-family: system-ui, -apple-system, sans-serif;
-  color: var(--text);
-  -webkit-tap-highlight-color: transparent;
+body {
+  background: #0e0e16;
+  background-image: radial-gradient(ellipse at 50% 0%, rgba(127,119,221,0.12) 0%, transparent 70%);
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: system-ui, sans-serif;
+  color: #e8e8e4;
 }
 
 #app {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 1rem 0 1.5rem;
+  width: 100%;
+  max-width: 420px;
+  padding: 16px 0 24px;
+}
+
+#button-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  max-width: 380px;
+  margin-bottom: 6px;
+}
+
+#home-btn, #shop-btn {
+  flex: 1;
+  max-width: 180px;
+  text-align: center;
+}
+
+#gc {
+  border-radius: 14px;
+  box-shadow:
+    0 0 0 1px rgba(127,119,221,0.3),
+    0 0 32px rgba(127,119,221,0.12),
+    0 8px 32px rgba(0,0,0,0.5);
+  display: block;
 }
 
 #hud {
   display: flex;
-  gap: 1.2rem;
-  flex-wrap: wrap;
-  justify-content: center;
-  margin-bottom: 8px;
+  flex-direction: row;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 380px;
+  padding: 6px 4px 2px;
+  font-size: 13px;
 }
 
-.stat {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  min-width: 48px;
-}
-
-.stat span {
-  font-size: 22px;
-  font-weight: 600;
-  line-height: 1.1;
-  color: var(--text);
-}
-
-.stat label {
-  font-size: 11px;
-  color: var(--text2);
-  letter-spacing: 0.03em;
-}
+#hud .stat { display: flex; flex-direction: column; align-items: center; }
+#hud .val  { font-size: 20px; font-weight: 700; line-height: 1.1; }
+#hud .lbl  { font-size: 10px; opacity: 0.45; letter-spacing: 0.03em; }
 
 #bars {
   display: flex;
   flex-direction: column;
-  gap: 5px;
-  width: 380px;
-  max-width: calc(100vw - 2rem);
-  margin-bottom: 6px;
+  width: 100%;
+  max-width: 380px;
+  gap: 4px;
+  padding: 4px 0 2px;
 }
 
 .bar-row {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 11px;
-  color: var(--text2);
+  gap: 6px;
+  font-size: 10px;
+  opacity: 0.55;
 }
-
-.bar-label { min-width: 42px; }
 
 .bar-track {
   flex: 1;
-  height: 5px;
-  background: var(--bg2);
-  border-radius: 3px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
   overflow: hidden;
-  border: 1px solid var(--border);
 }
 
-.bar-track div {
-  height: 100%;
-  width: 0%;
-  border-radius: 3px;
-  transition: width 0.2s, background 0.3s;
-}
+.bar-fill { height: 100%; border-radius: 2px; transition: width 0.2s; }
 
-#streak-fill { background: #7F77DD; }
-
-#target-label {
-  min-width: 56px;
-  text-align: right;
-  font-variant-numeric: tabular-nums;
-  font-size: 11px;
-  color: var(--text2);
-}
-
-#canvas-wrap {
-  position: relative;
-  cursor: crosshair;
-  touch-action: none;
-}
-
-#gc, #ac {
-  display: block;
-  border-radius: var(--radius);
-  border: 1px solid var(--border);
-}
-
-#ac {
-  position: absolute;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-}
+#target-label { margin-left: auto; opacity: 0.5; font-size: 10px; }
 
 #msg {
-  font-size: 13px;
-  color: var(--text2);
-  min-height: 18px;
+  font-size: 11px;
+  opacity: 0.45;
   text-align: center;
-  padding: 0 1rem;
-  margin-top: 8px;
+  padding: 4px 0 2px;
+  min-height: 18px;
 }
 
 #rbtn {
-  display: none;
-  padding: 8px 28px;
-  font-size: 14px;
-  font-family: inherit;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: transparent;
-  color: var(--text);
-  cursor: pointer;
   margin-top: 10px;
+  padding: 10px 32px;
+  border-radius: 10px;
+  border: none;
+  background: #7F77DD;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  display: none;
 }
-
-#rbtn:hover { background: var(--bg2); }
-#rbtn:active { transform: scale(0.98); }

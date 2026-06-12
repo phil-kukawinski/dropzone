@@ -1694,7 +1694,7 @@ function buildShopButton() {
     btn=document.createElement('button');
     btn.id='shop-btn';
     btn.style.cssText='padding:5px 14px;border-radius:8px;border:1px solid rgba(127,119,221,0.4);background:rgba(127,119,221,0.12);color:#7F77DD;font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px;';
-    document.getElementById('app').insertBefore(btn,document.getElementById('app').firstChild);
+    document.getElementById('button-row').appendChild(btn);
   }
   btn.textContent=isDailyMode?'📅 daily':'💎 '+gems;
   btn.onclick=()=>{
@@ -1715,7 +1715,7 @@ function buildShopButton() {
     hbtn.id='home-btn';
     hbtn.style.cssText='padding:5px 12px;border-radius:8px;border:1px solid rgba(255,255,255,0.15);background:rgba(255,255,255,0.06);color:rgba(255,255,255,0.5);font-size:12px;cursor:pointer;font-family:inherit;margin-bottom:6px;margin-right:6px;';
     hbtn.textContent='⌂ menu';
-    document.getElementById('app').insertBefore(hbtn,document.getElementById('app').firstChild);
+    document.getElementById('button-row').appendChild(hbtn);
   }
   hbtn.onclick=()=>{
     if (screen==='game') { homeConfirmPending=true; if(!animRunning){animRunning=true;requestAnimationFrame(loop);} idleDraw(); }
