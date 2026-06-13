@@ -728,7 +728,7 @@ function afterBallLands() {
     setMsg(needed>0?needed+' more to advance'+ms:'milestone hit! keep going...');
   } else {
     if (score>=milestoneFor(round)){advanceRound();}
-    else if (!adUsed&&!isDailyMode){adScreen='offer';if(!animRunning){}}
+    else if (!adUsed&&!isDailyMode){adScreen='offer';}
     else{triggerGameOver();}
   }
 }
@@ -1751,7 +1751,7 @@ function loop() {
   else if (screen==='leaderboard')  { drawLeaderboard(); }
   else if (screen==='daily_result') { drawDailyResult(); }
   else {
-    update();
+    if (!gameOver||balls.some(b=>b.active)) update();
     if (adScreen){
       drawGame(); drawAdScreen();
       if (adScreen==='watching'){adTimer--;if(adTimer<=0){adUsed=true;adScreen=false;adRoundAtRevive=round;ballsLeft=3;multiplier=1;SFX.roundUp();setMsg('revived! 3 balls restored — click to drop');updateHUD();}}
