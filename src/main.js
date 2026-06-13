@@ -1745,6 +1745,7 @@ function drawDailyResult() {
 // ── Loop ──────────────────────────────────────────────────────────────────────
 
 function loop() {
+  if (!animRunning) return;
   if (screen==='launch')            { drawLaunch(); launchAnimT+=0.02; for (const s of starfieldStars){s.y+=s.speed;if(s.y>H)s.y=0;} }
   else if (screen==='settings')     { drawSettings(); }
   else if (screen==='achievements') { drawAchievements(); }
@@ -1759,7 +1760,7 @@ function loop() {
     } else { drawGame(); }
     if (gameOver&&!isDailyMode&&!balls.some(b=>b.active)){animRunning=false;return;}
   }
-  if (!animRunning) { animRunning=true; requestAnimationFrame(loop); }
+  requestAnimationFrame(loop);
 }
 
 function idleDraw() {
@@ -1816,7 +1817,7 @@ function handleTap(gy, clientX) {
     if (gy>=H/2+4&&gy<=H/2+42) {
       if (clientToGame(clientX||0)<W/2) {
         homeConfirmPending=false; screen='launch'; syncHUD();
-        if (!animRunning) { animRunning=true; requestAnimationFrame(loop); }
+        animRunning=true; requestAnimationFrame(loop);
       } else {
         homeConfirmPending=false; idleDraw();
       }
@@ -1838,7 +1839,7 @@ function launchTap(gy) {
       SFX.launch(); haptic(10);
       if (btn.label.includes('PLAY'))        { startGame(false); return; }
       if (btn.label.includes('Daily'))       { startGame(true);  return; }
-      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); if (!animRunning) { animRunning=true; requestAnimationFrame(loop); } return; }
+      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); animRunning=true; requestAnimationFrame(loop); return; }
       if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); idleDraw(); return; }
       if (btn.label.includes('Shop'))        {
         screen='shop'; shopScroll=0; syncHUD();
@@ -1922,7 +1923,7 @@ gc.addEventListener('touchend',e=>{
 
 document.getElementById('rbtn').addEventListener('click',()=>{
   screen='launch'; soundEnabled=LS.get('dz_sound',true); vibrationEnabled=LS.get('dz_vibe',true);
-  syncHUD(); if (!animRunning) { animRunning=true; requestAnimationFrame(loop); }
+  syncHUD(); animRunning=true; requestAnimationFrame(loop);
 });
 
 window.addEventListener('keydown',e=>{
