@@ -1150,6 +1150,51 @@ function update() {
         }
       }
       if (p.ht>0){p.ht--;if(p.ht===0)p.hit=false;}
+      for (const tok of tokens) {
+      if (tok.hit) continue;
+      if (Math.hypot(b.x-tok.x,b.y-tok.y)<b.r+tok.r) {
+        tok.hit=true; haptic(12);
+        tokensThisDrop++;
+        if (tokensThisDrop>=2) {
+          addPopup(W/2,H/2-20,tokensThisDrop+'x COMBO!',tokensThisDrop>=4?'#FFD700':tokensThisDrop>=3?'#EF9F27':'#D4537E');
+          addParticles(W/2,H/2,tokensThisDrop>=4?'#FFD700':'#D4537E',tokensThisDrop*4);
+        }
+        const s=loadStats(); s.totalTokens=(s.totalTokens||0)+1; saveStats(s);
+        if (tok.type==='x+1') {
+          multiplier=Math.min(multiplier+1,10);
+          if (multiplier>=3){const st=loadStats();st.hitMulti3=Math.max(st.hitMulti3||0,1);saveStats(st);}
+          if (multiplier>=5){const st=loadStats();st.hitMulti5=Math.max(st.hitMulti5||0,1);saveStats(st);}
+          if (multiplier===10){gameMaxMulti++;const st=loadStats();st.maxMultiInGame=Math.max(st.maxMultiInGame||0,gameMaxMulti);saveStats(st);}
+          SFX.multiplier();
+          addPopup(tok.x,tok.y-16,'x'+multiplier+'!','#D4537E');
+          addParticles(tok.x,tok.y,'#D4537E',10); updateHUD();
+        } else if (tok.type==='+ball') {
+          pendingBalls++; SFX.token();
+          addPopup(tok.x,tok.y-16,'next: '+pendingBalls+'x',BONUS_COL);
+          addParticles(tok.x,tok.y,BONUS_COL,10); updateHUD();
+        } else if (tok.type==='gem') {
+          const g=1+Math.floor(round/5); gems+=g; saveGems(gems);
+          const sg=loadStats();sg.totalGems=(sg.totalGems||0)+g;saveStats(sg);
+          SFX.gem(); addPopup(tok.x,tok.y-16,'+'+g+' '+getGemEmoji(),'#5DCAA5');
+          addParticles(tok.x,tok.y,'#5DCAA5',10); updateHUD();
+        } else if (tok.type==='gem_multi') {
+          const g=2+Math.floor(round/4); gems+=g; saveGems(gems);
+          const sg=loadStats();sg.totalGems=(sg.totalGems||0)+g;saveStats(sg);
+          SFX.gem();SFX.multiplier();
+          addPopup(tok.x,tok.y-16,'gem x2! +'+g+getGemEmoji(),'#FFD700');
+          addParticles(tok.x,tok.y,'#FFD700',14); updateHUD();
+        } else if (tok.type==='shield') {
+          shieldActive=true; SFX.shield();
+          addPopup(tok.x,tok.y-16,'SHIELD ON','#5DCAA5');
+          addParticles(tok.x,tok.y,'#5DCAA5',10);
+        } else if (tok.type==='magnet') {
+          b.magnetTimer=120;
+          const sm=loadStats();sm.magnetCollected=(sm.magnetCollected||0)+1;saveStats(sm);
+          addPopup(tok.x,tok.y-16,'MAGNET!','#378ADD');
+          addParticles(tok.x,tok.y,'#378ADD',10);
+        }
+      }
+    }
     }
     for (const o of obstacles) {
       if (o.type==='spinner') {
@@ -1204,11 +1249,12 @@ function boardBg() {
 
 function pegColor(hit) {
   const skin=getBoardSkin();
-  if (hit) return '#D4537E';
   if (skin==='seasonal') {
     const ev=getEquippedSeasonalEvent();
+    if (hit) return '#FFFFFF';
     return ev?ev.pegCol:'#666460';
   }
+  if (hit) return '#D4537E';
   if (skin==='neon')    return '#5DCAA5';
   if (skin==='minimal'||skin==='white') return '#C8C6BE';
   if (skin==='crimson') return '#8B2020';
