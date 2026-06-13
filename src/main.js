@@ -202,7 +202,11 @@ const SFX = {
   token:      () => playArpeggio([523, 659, 784], 'square', 0.08, 0.12),
   gem:        () => playArpeggio([784, 988, 1175], 'square', 0.07, 0.1),
   death:      () => { playTone(220, 'sawtooth', 0.15, 0.15); playTone(165, 'sawtooth', 0.2, 0.12, 0.1); },
-  roundUp:    () => playArpeggio([523, 659, 784, 1047], 'square', 0.1, 0.14),
+  roundUp: (r) => {
+    if (r&&r>=10) playArpeggio([523,659,784,1047,1318], 'square', 0.09, 0.15);
+    else if (r&&r>=5) playArpeggio([523,659,784,1047], 'square', 0.1, 0.14);
+    else playArpeggio([523,659,784], 'square', 0.1, 0.13);
+  },
   launch:     () => playArpeggio([262, 330, 392, 523], 'square', 0.12, 0.1),
   stuck:      () => playTone(180, 'sawtooth', 0.18, 0.12),
   shield:     () => playArpeggio([523, 784, 1047], 'square', 0.09, 0.1),
@@ -626,11 +630,16 @@ function resolveSlot(b) {
       const stats=loadStats(); stats.deathsSurvived++; stats.shieldUsed=(stats.shieldUsed||0)+1;
       if (ballsLeft<=1) stats.closeCallSurvives=(stats.closeCallSurvives||0)+1;
       saveStats(stats);
-      addPopup(b.x,H-SLOT_H-22,'SHIELD!','#5DCAA5');
-      addParticles(b.x,H-SLOT_H,'#5DCAA5',12);
+      addPopup(b.x,H-SLOT_H-22,'🛡 BLOCKED!','#5DCAA5');
+      addParticles(b.x,H-SLOT_H,'#5DCAA5',20);
+      // Extra particles in white for flash effect
+      addParticles(b.x,H-SLOT_H,'#ffffff',8);
     } else {
       ballsLeft=Math.max(0,ballsLeft-1); multiplier=1;
       gameDeathHits++; roundPerfect=false; currentRoundNoDeath=false;
+      const ds=loadStats(); ds.deathsSurvived=(ds.deathsSurvived||0)+1;
+      if (ballsLeft<=0) ds.closeCallSurvives=(ds.closeCallSurvives||0)+1;
+      saveStats(ds);
       addPopup(b.x,H-SLOT_H-22,'-1 ball  x1','#E24B4A');
       addParticles(b.x,H-SLOT_H,'#E24B4A',12);
     }
@@ -665,7 +674,7 @@ function resolveSlot(b) {
 }
 
 function advanceRound() {
-  SFX.roundUp(); haptic([10,5,10,5,10]);
+  SFX.roundUp(round+1); haptic([10,5,10,5,10]);
   if (ballsLeft===1){const s=loadStats();s.lastStandWins=(s.lastStandWins||0)+1;saveStats(s);}
   if (roundPerfect){const stats=loadStats();stats.perfectRounds=(stats.perfectRounds||0)+1;saveStats(stats);}
   if (currentRoundNoDeath) {
@@ -937,10 +946,10 @@ function drawUsernamePrompt() {
   ctx.strokeStyle='rgba(127,119,221,0.4)'; ctx.lineWidth=1;
   ctx.beginPath(); ctx.roundRect(W/2-150,H/2-90,300,180,12); ctx.stroke();
   ctx.fillStyle='#fff'; ctx.font='600 15px system-ui'; ctx.textAlign='center';
-  ctx.fillText('Set your username',W/2,H/2-54);
+  ctx.fillText(username?'Change username':'Set your username',W/2,H/2-54);
   ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 11px system-ui';
-  ctx.fillText('Shows on your leaderboard. Skip to use a',W/2,H/2-32);
-  ctx.fillText('random name.',W/2,H/2-16);
+  ctx.fillText(username?'Enter a new username below.':'Shows on your leaderboard. Skip to use a',W/2,H/2-32);
+  ctx.fillText(username?'':'random name.',W/2,H/2-16);
   ctx.fillStyle='rgba(255,255,255,0.08)';
   ctx.beginPath(); ctx.roundRect(W/2-110,H/2-4,220,36,8); ctx.fill();
   ctx.strokeStyle='rgba(127,119,221,0.6)'; ctx.lineWidth=1.5;
@@ -979,7 +988,7 @@ function drawLeaderboard() {
   ctx.fillText('← back',52,32);
 
   ctx.fillStyle='#7F77DD'; ctx.font='600 18px system-ui'; ctx.textAlign='center';
-  ctx.fillText('LEADERBOARD',W/2,36);
+  ctx.fillText('MY SCORES',W/2,36);
   ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 11px system-ui';
   ctx.fillText(username||'',W/2,54);
 
@@ -1102,7 +1111,7 @@ function drawLaunch() {
     {label:'▶  PLAY',            y:H/2-10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
     {label:'📅  Daily Challenge', y:H/2+36,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
     {label:'🏆  Achievements',    y:H/2+78,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
-    {label:'📊  Leaderboard',     y:H/2+120, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'📊  My Scores',       y:H/2+120, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
     {label:'💎  Shop',            y:H/2+162, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
     {label:'⚙  Settings',         y:H/2+204, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
@@ -1147,16 +1156,17 @@ function drawSettings() {
   const items=[
     {type:'toggle',label:'Sound',    value:soundEnabled,    id:'sound',y:80},
     {type:'toggle',label:'Vibration',value:vibrationEnabled,id:'vibe', y:130},
-    {type:'section',label:'YOUR STATS',y:185},
-    {type:'stat',label:'Games Played',        value:stats.gamesPlayed||0,                   y:215},
-    {type:'stat',label:'Total Score',         value:(stats.totalScore||0).toLocaleString(),  y:250},
-    {type:'stat',label:'Best Round',          value:stats.bestRound||0,                     y:285},
-    {type:'stat',label:'Gems Earned',         value:(stats.totalGems||0).toLocaleString(),   y:320},
-    {type:'stat',label:'Balls Dropped',       value:(stats.totalBalls||0).toLocaleString(),  y:355},
-    {type:'stat',label:'Death Slots Survived',value:stats.deathsSurvived||0,                y:390},
-    {type:'stat',label:'Pegs Hit',            value:(stats.totalPegsHit||0).toLocaleString(),y:425},
-    {type:'section',label:'PRIVACY',y:455},
-    {type:'text',label:'Dropzone stores all data locally on your device. No account, no tracking, no data sent anywhere.',y:478},
+    {type:'button',label:'Change Username',sublabel:username||'not set',id:'username',y:180},
+    {type:'section',label:'YOUR STATS',y:235},
+    {type:'stat',label:'Games Played',        value:stats.gamesPlayed||0,                   y:262},
+    {type:'stat',label:'Total Score',         value:(stats.totalScore||0).toLocaleString(),  y:292},
+    {type:'stat',label:'Best Round',          value:stats.bestRound||0,                     y:322},
+    {type:'stat',label:'Gems Earned',         value:(stats.totalGems||0).toLocaleString(),   y:352},
+    {type:'stat',label:'Balls Dropped',       value:(stats.totalBalls||0).toLocaleString(),  y:382},
+    {type:'stat',label:'Death Slots Survived',value:stats.deathsSurvived||0,                y:412},
+    {type:'stat',label:'Pegs Hit',            value:(stats.totalPegsHit||0).toLocaleString(),y:442},
+    {type:'section',label:'PRIVACY',y:468},
+    {type:'text',label:'Dropzone stores all data locally on your device. No account, no tracking, no data sent anywhere.',y:486},
   ];
 
   items.forEach(item=>{
@@ -1193,6 +1203,7 @@ function drawSettings() {
   });
   drawSettings._items=items;
 }
+
 
 // ── Draw achievements ─────────────────────────────────────────────────────────
 
@@ -1552,7 +1563,11 @@ function drawGame() {
       else { continue; }
       const pct=cur/goal;
       if (pct>=0.5&&pct<1) close.push({ach,pct,cur,goal});
+      ctx.fillStyle='rgba(127,119,221,0.5)'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
+    ctx.fillText('↓ play again below',W/2,H-14);
     }
+    ctx.fillStyle='rgba(127,119,221,0.6)'; ctx.font='500 12px system-ui'; ctx.textAlign='center';
+    ctx.fillText('↓ play again below',W/2,H-16);
     close.sort((a,b)=>b.pct-a.pct);
     const top=close.slice(0,3);
     if (top.length>0){
@@ -1852,7 +1867,7 @@ function launchTap(gy) {
       if (btn.label.includes('PLAY'))        { startGame(false); return; }
       if (btn.label.includes('Daily')) { if (!isDailyDone()) startGame(true); return; }
       if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); return; }
-      if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); return; }
+      if (btn.label.includes('My Scores')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); return; }
       if (btn.label.includes('Shop'))        {
         screen='shop'; shopScroll=0; syncHUD();
         const s=loadStats(); s.shopVisits=(s.shopVisits||0)+1; saveStats(s);
@@ -1867,9 +1882,13 @@ function settingsTap(gy) {
   if (gy>=12&&gy<=42){screen='launch';syncHUD();return;}
   const items=drawSettings._items||[];
   for (const item of items) {
-    if (item.type==='toggle'&&item._y!=null&&gy>=item._y&&gy<=item._y+item._h) {
-      if (item.id==='sound'){soundEnabled=!soundEnabled;LS.set('dz_sound',soundEnabled);}
-      if (item.id==='vibe') {vibrationEnabled=!vibrationEnabled;LS.set('dz_vibe',vibrationEnabled);}
+    if (item._y!=null&&gy>=item._y&&gy<=item._y+item._h) {
+      if (item.type==='toggle') {
+        if (item.id==='sound'){soundEnabled=!soundEnabled;LS.set('dz_sound',soundEnabled);}
+        if (item.id==='vibe') {vibrationEnabled=!vibrationEnabled;LS.set('dz_vibe',vibrationEnabled);}
+      } else if (item.type==='button'&&item.id==='username') {
+        usernamePromptActive=true; usernameInput=username||'';
+      }
       return;
     }
   }
@@ -1963,7 +1982,7 @@ function buildShopButton() {
     document.getElementById('button-row').appendChild(hbtn);
   }
   hbtn.onclick=()=>{
-    if (screen==='game'){homeConfirmPending=true;if(!animRunning){}}
+    if (screen==='game'){homeConfirmPending=true;}
   };
 
   let btn=document.getElementById('shop-btn');
