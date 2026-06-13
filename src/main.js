@@ -2277,18 +2277,23 @@ function handleTap(gy, clientX) {
     return;
   }
   if (usernamePromptActive) {
-    const by=H/2+42, bh=32;
-    if (gy>=by&&gy<=by+bh) {
-      const cx=clientToGame(clientX||0);
-      if (cx<W/2) {
-        username=usernameInput.trim().slice(0,16)||generateUsername();
-      } else {
-        username=generateUsername();
-      }
+    const saveY=H/2+42, skipY=H/2+42, bh=32;
+    const cx=clientToGame(clientX||0);
+    // Save button (left half)
+    if (gy>=H/2+42&&gy<=H/2+74&&cx<W/2) {
+      username=usernameInput.trim().slice(0,16)||generateUsername();
       saveUsername(username);
       const scores=loadScores();
       if (scores.length>0){scores[0].name=username;saveScores(scores);}
       usernamePromptActive=false;
+      return;
+    }
+    // Skip button (right half)
+    if (gy>=H/2+42&&gy<=H/2+74&&cx>=W/2) {
+      if (!username) username=generateUsername();
+      saveUsername(username);
+      usernamePromptActive=false;
+      return;
     }
     return;
   }
