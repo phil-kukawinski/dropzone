@@ -1332,7 +1332,7 @@ function drawUsernamePrompt() {
   ctx.fillStyle='rgba(255,255,255,0.08)';
   ctx.beginPath(); ctx.roundRect(W/2+8,H/2+42,100,32,8); ctx.fill();
   ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='600 12px system-ui';
-  ctx.fillText('Skip',W/2+58,H/2+63);
+  ctx.fillText('Cancel',W/2+58,H/2+63);
 }
 
 // ── Draw leaderboard ──────────────────────────────────────────────────────────
@@ -1531,6 +1531,10 @@ function drawLaunch() {
     {label:'💎  Shop',            y:H/2+140, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
     {label:'⚙  Settings',         y:H/2+178, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
+  if (dailyDone) {
+    ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 9px system-ui'; ctx.textAlign='center';
+    ctx.fillText('resets at midnight',W/2,H/2+26+18+8);
+  }
 
   btns.forEach(btn=>{
     ctx.fillStyle=btn.bg;
