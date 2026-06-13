@@ -711,6 +711,7 @@ let leaderboardTab = 'all';
 let usernamePromptActive = false;
 let usernameInput = '';
 let username = null;
+let seasonalPickerOpen = false;
 
 function isOwned(id)    { return owned.includes(id); }
 function isAchieved(id) { return achieved.includes(id); }
@@ -1442,6 +1443,48 @@ function isDailyDone() {
   return !!(db[key]&&(db[key].score!==undefined));
 }
 
+function drawSeasonalPicker(activeEvs) {
+  const equipped=loadEquippedSeasonal();
+  const owned=loadSeasonalOwned();
+  ctx.fillStyle='rgba(18,18,28,0.92)'; ctx.fillRect(0,0,W,H);
+  ctx.fillStyle='rgba(127,119,221,0.2)';
+  ctx.beginPath(); ctx.roundRect(W/2-160,40,320,H-80,14); ctx.fill();
+  ctx.strokeStyle='rgba(127,119,221,0.5)'; ctx.lineWidth=1;
+  ctx.beginPath(); ctx.roundRect(W/2-160,40,320,H-80,14); ctx.stroke();
+
+  ctx.fillStyle='#fff'; ctx.font='600 15px system-ui'; ctx.textAlign='center';
+  ctx.fillText('🎨 Custom Themes',W/2,68);
+  ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='400 10px system-ui';
+  ctx.fillText('Free themes for today\'s events',W/2,84);
+
+  const cardH=58, startY=96, pad=16;
+  activeEvs.forEach((ev,i)=>{
+    const cy=startY+i*cardH;
+    if (cy+cardH>H-60) return;
+    const isEq=equipped===ev.id;
+    ctx.fillStyle=isEq?'rgba(239,159,39,0.2)':'rgba(255,255,255,0.06)';
+    ctx.beginPath(); ctx.roundRect(W/2-144,cy,288,cardH-6,8); ctx.fill();
+    if (isEq){ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(W/2-144,cy,288,cardH-6,8);ctx.stroke();}
+    ctx.font='22px system-ui'; ctx.textAlign='center';
+    ctx.fillText(ev.emoji,W/2-120,cy+32);
+    ctx.fillStyle=isEq?'#EF9F27':'#fff'; ctx.font='600 13px system-ui'; ctx.textAlign='left';
+    ctx.fillText(ev.name,W/2-96,cy+20);
+    ctx.fillStyle='rgba(255,255,255,0.45)'; ctx.font='400 10px system-ui';
+    ctx.fillText(ev.desc,W/2-96,cy+36);
+    if (isEq){ctx.fillStyle='#EF9F27';ctx.font='500 10px system-ui';ctx.textAlign='right';ctx.fillText('✓ equipped',W/2+136,cy+20);}
+    ev._pickerY=cy; ev._pickerH=cardH-6;
+  });
+
+  // Close button
+  const closeY=H-58;
+  ctx.fillStyle='rgba(255,255,255,0.08)';
+  ctx.beginPath(); ctx.roundRect(W/2-80,closeY,160,32,8); ctx.fill();
+  ctx.fillStyle='rgba(255,255,255,0.6)'; ctx.font='500 12px system-ui'; ctx.textAlign='center';
+  ctx.fillText('close',W/2,closeY+21);
+  drawSeasonalPicker._closeY=closeY;
+  drawSeasonalPicker._activeEvs=activeEvs;
+}
+
 function drawLaunch() {
   const dailyDone=isDailyDone();
   ctx.clearRect(0,0,W,H);
@@ -1465,33 +1508,33 @@ function drawLaunch() {
   if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-52);}
   else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-52);}
 
-  const activeEv=getActiveEvent();
-  const seasonalOwned=loadSeasonalOwned();
+  const activeEvs=getActiveEvents();
   const seasonalEquipped=loadEquippedSeasonal();
-  if (activeEv) {
-    const isOwned_=seasonalOwned.includes(activeEv.id);
-    const isEquipped=seasonalEquipped===activeEv.id;
-    ctx.fillStyle=isEquipped?'rgba(239,159,39,0.15)':'rgba(127,119,221,0.15)';
-    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-242,280,36,9); ctx.fill();
-    ctx.strokeStyle=isEquipped?'#EF9F27':'#7F77DD'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-242,280,36,9); ctx.stroke();
+  if (activeEvs.length>0) {
+    const equippedEv=activeEvs.find(e=>e.id===seasonalEquipped);
+    ctx.fillStyle=equippedEv?'rgba(239,159,39,0.15)':'rgba(127,119,221,0.15)';
+    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-40,280,30,9); ctx.fill();
+    ctx.strokeStyle=equippedEv?'#EF9F27':'#7F77DD'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-40,280,30,9); ctx.stroke();
     ctx.fillStyle='#fff'; ctx.font='600 11px system-ui'; ctx.textAlign='center';
-    ctx.fillText(activeEv.emoji+' '+activeEv.name+' — FREE!',W/2,H/2-228);
-    ctx.fillStyle=isEquipped?'#EF9F27':'rgba(175,169,236,0.8)'; ctx.font='400 10px system-ui';
-    ctx.fillText(isEquipped?'equipped ✓ — tap to unequip':isOwned_?'owned — tap to equip':'tap to equip free theme',W/2,H/2-214);
-    drawLaunch._seasonalBanner={y:H/2-242,h:36,ev:activeEv,isEquipped,isOwned:isOwned_};
+    const evEmojis=activeEvs.slice(0,4).map(e=>e.emoji).join(' ');
+    ctx.fillText('🎨 Custom Themes  '+evEmojis,W/2,H/2-26);
+    ctx.fillStyle=equippedEv?'#EF9F27':'rgba(175,169,236,0.8)'; ctx.font='400 9px system-ui';
+    ctx.fillText(equippedEv?'equipped: '+equippedEv.name+' — tap to change':'tap to pick a free theme',W/2,H/2-14);
+    drawLaunch._seasonalBanner={y:H/2-40,h:30,activeEvs};
   } else {
     drawLaunch._seasonalBanner=null;
   }
 
   const btns=[
-    {label:'▶  PLAY',            y:H/2-10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
-    {label:'📅  Daily Challenge', y:H/2+36,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
-    {label:'🏆  Achievements',    y:H/2+78,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
-    {label:'📊  My Scores',       y:H/2+120, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'💎  Shop',            y:H/2+162, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'⚙  Settings',         y:H/2+204, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
+    {label:'▶  PLAY',            y:H/2+10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
+    {label:'📅  Daily Challenge', y:H/2+52,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
+    {label:'🏆  Achievements',    y:H/2+94,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
+    {label:'📊  My Scores',       y:H/2+136, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'💎  Shop',            y:H/2+178, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'⚙  Settings',         y:H/2+220, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
+
   btns.forEach(btn=>{
     ctx.fillStyle=btn.bg;
     ctx.beginPath(); ctx.roundRect(W/2-btn.w/2,btn.y-18,btn.w,36,9); ctx.fill();
@@ -1511,6 +1554,8 @@ function drawLaunch() {
 
   ctx.fillStyle='#fff'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
   ctx.fillText('best: '+loadBest().toLocaleString()+'  |  💎 '+loadGems(),W/2,H-12);
+
+  if (seasonalPickerOpen&&activeEvs.length>0) drawSeasonalPicker(activeEvs);
 }
 
 // ── Draw settings ─────────────────────────────────────────────────────────────
@@ -2268,15 +2313,30 @@ function handleTap(gy, clientX) {
 // ── Screen taps ───────────────────────────────────────────────────────────────
 
 function launchTap(gy) {
+  // Handle picker overlay
+  if (seasonalPickerOpen) {
+    const evs=drawSeasonalPicker._activeEvs||[];
+    const closeY=drawSeasonalPicker._closeY||450;
+    if (gy>=closeY&&gy<=closeY+32){seasonalPickerOpen=false;return;}
+    for (const ev of evs) {
+      if (ev._pickerY!=null&&gy>=ev._pickerY&&gy<=ev._pickerY+ev._pickerH){
+        const owned_=loadSeasonalOwned();
+        const cur=loadEquippedSeasonal();
+        if (cur===ev.id){saveEquippedSeasonal(null);}
+        else {
+          if (!owned_.includes(ev.id)){owned_.push(ev.id);saveSeasonalOwned(owned_);}
+          saveEquippedSeasonal(ev.id);
+        }
+        seasonalPickerOpen=false;
+        return;
+      }
+    }
+    return;
+  }
+
   const banner=drawLaunch._seasonalBanner;
   if (banner&&gy>=banner.y&&gy<=banner.y+banner.h) {
-    const owned_=loadSeasonalOwned();
-    if (banner.isEquipped) {
-      saveEquippedSeasonal(null);
-    } else {
-      if (!owned_.includes(banner.ev.id)){owned_.push(banner.ev.id);saveSeasonalOwned(owned_);}
-      saveEquippedSeasonal(banner.ev.id);
-    }
+    seasonalPickerOpen=true;
     return;
   }
   const btns=drawLaunch._btns||[];
