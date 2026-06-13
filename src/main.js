@@ -1503,11 +1503,11 @@ function drawLaunch() {
     }
   }
 
-  ctx.fillStyle='#fff'; ctx.font='700 40px system-ui'; ctx.textAlign='center';
-  ctx.fillText('DROPZONE',W/2,H/2-72);
+  ctx.fillStyle='#fff'; ctx.font='700 38px system-ui'; ctx.textAlign='center';
+  ctx.fillText('DROPZONE',W/2,H/2-90);
   const title=getPlayerTitle();
-  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-52);}
-  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-52);}
+  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-70);}
+  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-70);}
 
   const seasonalEquipped=loadEquippedSeasonal();
   if (activeEvs.length>0) {
@@ -1525,12 +1525,12 @@ function drawLaunch() {
   }
 
   const btns=[
-    {label:'▶  PLAY',            y:H/2+10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
-    {label:'📅  Daily Challenge', y:H/2+52,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
-    {label:'🏆  Achievements',    y:H/2+94,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
-    {label:'📊  My Scores',       y:H/2+136, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'💎  Shop',            y:H/2+178, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'⚙  Settings',         y:H/2+220, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
+    {label:'▶  PLAY',            y:H/2-20,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
+    {label:'📅  Daily Challenge', y:H/2+26,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
+    {label:'🏆  Achievements',    y:H/2+64,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
+    {label:'📊  My Scores',       y:H/2+102, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'💎  Shop',            y:H/2+140, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'⚙  Settings',         y:H/2+178, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
 
   btns.forEach(btn=>{
@@ -1543,7 +1543,7 @@ function drawLaunch() {
   });
   drawLaunch._btns=btns;
 
-  const ballY=24+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-135);
+  const ballY=44+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-200);
   const th=getTheme();
   ctx.beginPath(); ctx.arc(W/2,ballY,BALL_R+2,0,Math.PI*2);
   ctx.fillStyle=th.ball+'44'; ctx.fill();
