@@ -1075,19 +1075,19 @@ function drawLaunch() {
     }
   }
 
-  ctx.fillStyle='#fff'; ctx.font='700 44px system-ui'; ctx.textAlign='center';
-  ctx.fillText('DROPZONE',W/2,H/2-60);
+  ctx.fillStyle='#fff'; ctx.font='700 40px system-ui'; ctx.textAlign='center';
+  ctx.fillText('DROPZONE',W/2,H/2-72);
   const title=getPlayerTitle();
-  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-38);}
-  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-38);}
+  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-52);}
+  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-52);}
 
   const btns=[
-    {label:'▶  PLAY',            y:H/2,     bg:'#7F77DD',                   fg:'#fff',                  w:200},
-    {label:'📅  Daily Challenge', y:H/2+50,  bg:'rgba(93,202,165,0.15)',     fg:'#5DCAA5',               w:220, border:'#5DCAA5'},
-    {label:'🏆  Achievements',    y:H/2+96,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
-    {label:'📊  Leaderboard',     y:H/2+142, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'💎  Shop',            y:H/2+188, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'⚙️  Settings',         y:H/2+234, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
+    {label:'▶  PLAY',            y:H/2-10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
+    {label:'📅  Daily Challenge', y:H/2+36,  bg:'rgba(93,202,165,0.15)',     fg:'#5DCAA5',               w:220, border:'#5DCAA5'},
+    {label:'🏆  Achievements',    y:H/2+78,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
+    {label:'📊  Leaderboard',     y:H/2+120, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'💎  Shop',            y:H/2+162, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'⚙  Settings',         y:H/2+204, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
   btns.forEach(btn=>{
     ctx.fillStyle=btn.bg;
