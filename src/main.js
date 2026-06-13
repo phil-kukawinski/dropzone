@@ -649,7 +649,7 @@ function submitScore(isDaily) {
     isDaily: isDaily||false,
   });
   scores.sort((a,b)=>b.score-a.score);
-  saveScores(scores.slice(0,20));
+  saveScores(scores.slice(0,10));
 }
 
 // ── Daily reward tiers ────────────────────────────────────────────────────────
