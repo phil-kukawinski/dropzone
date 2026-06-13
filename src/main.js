@@ -1524,17 +1524,13 @@ function drawLaunch() {
   }
 
   const btns=[
-    {label:'▶  PLAY',            y:H/2-30,  bg:'#7F77DD',                   fg:'#fff',                  w:220},
-    {label:'📅  Daily Challenge', y:H/2+26,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
-    {label:'🏆  Achievements',    y:H/2+64,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
-    {label:'📊  My Scores',       y:H/2+102, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'💎  Shop',            y:H/2+140, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'⚙  Settings',         y:H/2+178, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
+    {label:'▶  PLAY',            y:H/2-22,  bg:'#7F77DD',                   fg:'#fff',                  w:220},
+    {label:'📅  Daily Challenge', y:H/2+18,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
+    {label:'🏆  Achievements',    y:H/2+68,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
+    {label:'📊  My Scores',       y:H/2+108, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'💎  Shop',            y:H/2+148, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'⚙  Settings',         y:H/2+188, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
-  if (dailyDone) {
-    ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 9px system-ui'; ctx.textAlign='center';
-    ctx.fillText('resets at midnight',W/2,H/2+26+18+8);
-  }
 
   btns.forEach(btn=>{
     ctx.fillStyle=btn.bg;
@@ -1544,6 +1540,12 @@ function drawLaunch() {
     ctx.fillText(btn.label,W/2,btn.y+5);
     btn._y=btn.y-18; btn._h=36; btn._w=btn.w;
   });
+
+  if (dailyDone) {
+    ctx.fillStyle='rgba(255,255,255,0.25)'; ctx.font='400 9px system-ui'; ctx.textAlign='center';
+    ctx.fillText('resets at midnight',W/2,H/2+18+22);
+  }
+
   drawLaunch._btns=btns;
 
   const ballY=44+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-200);
