@@ -1526,7 +1526,7 @@ function drawLaunch() {
   const btns=[
     {label:'▶  PLAY',            y:H/2-30,  bg:'#7F77DD',                   fg:'#fff',                  w:220},
     {label:'📅  Daily Challenge', y:H/2+10,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
-    {label:'🏆  Achievements',    y:H/2+66,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
+    {label:'🏆  Achievements',    y:H/2+74,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
     {label:'📊  My Scores',       y:H/2+106, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
     {label:'💎  Shop',            y:H/2+146, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
     {label:'⚙  Settings',         y:H/2+186, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
@@ -1543,7 +1543,7 @@ function drawLaunch() {
 
   if (dailyDone) {
     ctx.fillStyle='rgba(255,255,255,0.2)'; ctx.font='400 9px system-ui'; ctx.textAlign='center';
-    ctx.fillText('resets at midnight',W/2,H/2+32);
+    ctx.fillText('resets at midnight',W/2,H/2+38);
   }
 
   drawLaunch._btns=btns;
