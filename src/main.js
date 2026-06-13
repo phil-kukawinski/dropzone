@@ -167,6 +167,341 @@ const POWERUP_THRESHOLDS = [
   { id: 'path',   label: 'Path Preview', score: 15000 },
 ];
 
+// ── Seasonal Events ───────────────────────────────────────────────────────────
+
+const SEASONAL_EVENTS = [
+  {
+    id: 'world_cup', name: 'World Cup', emoji: '⚽',
+    start: [6,1], end: [7,15],
+    ball: '#FFFFFF', ballAlt: '#1A1A1A', trail: 'grass',
+    trailColors: ['#1D9E75','#2ECC71','#27AE60'],
+    board: 'rgba(20,80,20,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '🏆', desc: 'Soccer ball, pitch board, trophy gems',
+  },
+  {
+    id: 'fourth_july', name: '4th of July', emoji: '🎆',
+    start: [6,28], end: [7,8],
+    ball: '#B22234', ballAlt: '#3C3B6E', trail: 'firework',
+    trailColors: ['#B22234','#FFFFFF','#3C3B6E'],
+    board: 'rgba(8,8,40,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '⭐', desc: 'Patriotic colors, firework trail, star gems',
+  },
+  {
+    id: 'halloween', name: 'Halloween', emoji: '🎃',
+    start: [10,15], end: [11,1],
+    ball: '#FF6B00', ballAlt: '#1A0A2E', trail: 'ghost',
+    trailColors: ['#FF6B00','#9B59B6','#E8E8E4'],
+    board: 'rgba(20,6,40,0.99)', pegCol: '#FF6B00',
+    gemEmoji: '🎃', desc: 'Jack-o-lantern ball, ghost trail, pumpkin gems',
+  },
+  {
+    id: 'christmas', name: 'Christmas', emoji: '🎄',
+    start: [12,15], end: [1,2],
+    ball: '#C41E3A', ballAlt: '#1A4A1A', trail: 'snow',
+    trailColors: ['#FFFFFF','#C8E6C9','#E3F2FD'],
+    board: 'rgba(8,30,8,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '⭐', desc: 'Holiday red ball, snow trail, star gems',
+  },
+  {
+    id: 'new_years', name: "New Year's", emoji: '🥂',
+    start: [12,28], end: [1,4],
+    ball: '#FFD700', ballAlt: '#C5A028', trail: 'sparkle',
+    trailColors: ['#FFD700','#FFF8DC','#FFA500'],
+    board: 'rgba(8,8,20,0.99)', pegCol: '#FFD700',
+    gemEmoji: '🥂', desc: 'Gold ball, sparkle trail, champagne gems',
+  },
+  {
+    id: 'valentines', name: "Valentine's Day", emoji: '💝',
+    start: [2,1], end: [2,15],
+    ball: '#FF4D8D', ballAlt: '#C2185B', trail: 'hearts',
+    trailColors: ['#FF4D8D','#FF80AB','#F8BBD0'],
+    board: 'rgba(40,8,20,0.99)', pegCol: '#FF80AB',
+    gemEmoji: '💝', desc: 'Pink ball, heart trail, love gems',
+  },
+  {
+    id: 'st_patricks', name: "St. Patrick's Day", emoji: '🍀',
+    start: [3,10], end: [3,18],
+    ball: '#00A550', ballAlt: '#007A3D', trail: 'clover',
+    trailColors: ['#00A550','#7ED321','#C8F7C5'],
+    board: 'rgba(4,30,4,0.99)', pegCol: '#7ED321',
+    gemEmoji: '🍀', desc: 'Shamrock green ball, clover trail, lucky gems',
+  },
+  {
+    id: 'super_bowl', name: 'Super Bowl', emoji: '🏈',
+    start: [2,1], end: [2,10],
+    ball: '#8B4513', ballAlt: '#F5DEB3', trail: 'stadium',
+    trailColors: ['#8B4513','#D2691E','#F5DEB3'],
+    board: 'rgba(20,20,20,0.99)', pegCol: '#F5DEB3',
+    gemEmoji: '🏈', desc: 'Football, stadium board, touchdown gems',
+  },
+  {
+    id: 'march_madness', name: 'March Madness', emoji: '🏀',
+    start: [3,15], end: [4,7],
+    ball: '#FF6B00', ballAlt: '#1A1A1A', trail: 'hardwood',
+    trailColors: ['#FF6B00','#D4530A','#F5A623'],
+    board: 'rgba(101,67,33,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '🏀', desc: 'Basketball, hardwood board, hoop gems',
+  },
+  {
+    id: 'easter', name: 'Easter', emoji: '🐣',
+    start: [3,25], end: [4,20],
+    ball: '#FFB6C1', ballAlt: '#B5EAD7', trail: 'pastel',
+    trailColors: ['#FFB6C1','#B5EAD7','#FFDAC1','#C7CEEA'],
+    board: 'rgba(240,230,250,0.99)', pegCol: '#DDA0DD',
+    gemEmoji: '🐣', desc: 'Pastel egg ball, rainbow trail, chick gems',
+  },
+  {
+    id: 'cinco_mayo', name: 'Cinco de Mayo', emoji: '🌮',
+    start: [4,28], end: [5,6],
+    ball: '#E63946', ballAlt: '#2D6A4F', trail: 'confetti',
+    trailColors: ['#E63946','#F4A261','#2D6A4F'],
+    board: 'rgba(30,10,10,0.99)', pegCol: '#F4A261',
+    gemEmoji: '🌮', desc: 'Fiesta colors, confetti trail, taco gems',
+  },
+  {
+    id: 'mothers_day', name: "Mother's Day", emoji: '🌸',
+    start: [5,1], end: [5,12],
+    ball: '#FF85A1', ballAlt: '#FFC2D1', trail: 'petals',
+    trailColors: ['#FF85A1','#FFC2D1','#FFD6E0'],
+    board: 'rgba(40,10,30,0.99)', pegCol: '#FFC2D1',
+    gemEmoji: '🌸', desc: 'Floral pink ball, petal trail, blossom gems',
+  },
+  {
+    id: 'memorial_day', name: 'Memorial Day', emoji: '🎖️',
+    start: [5,24], end: [5,27],
+    ball: '#B22234', ballAlt: '#3C3B6E', trail: 'stars',
+    trailColors: ['#B22234','#FFFFFF','#3C3B6E'],
+    board: 'rgba(8,8,30,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '🎖️', desc: 'Stars and stripes, honor gems',
+  },
+  {
+    id: 'fathers_day', name: "Father's Day", emoji: '🏅',
+    start: [6,14], end: [6,16],
+    ball: '#1A3A5C', ballAlt: '#C5A028', trail: 'classic',
+    trailColors: ['#1A3A5C','#2E5F8A','#C5A028'],
+    board: 'rgba(10,18,30,0.99)', pegCol: '#C5A028',
+    gemEmoji: '🏅', desc: 'Navy and gold, medal gems',
+  },
+  {
+    id: 'pride', name: 'Pride Month', emoji: '🏳️‍🌈',
+    start: [6,1], end: [6,30],
+    ball: '#FF0018', ballAlt: '#FFA52C', trail: 'rainbow',
+    trailColors: ['#FF0018','#FFA52C','#FFFF41','#008018','#0000F9','#86007D'],
+    board: 'rgba(10,10,20,0.99)', pegCol: '#FF0018',
+    gemEmoji: '🏳️‍🌈', desc: 'Rainbow ball, pride trail, rainbow gems',
+  },
+  {
+    id: 'summer_solstice', name: 'Summer Solstice', emoji: '☀️',
+    start: [6,19], end: [6,22],
+    ball: '#FFD700', ballAlt: '#FFA500', trail: 'solar',
+    trailColors: ['#FFD700','#FFA500','#FF8C00'],
+    board: 'rgba(30,20,0,0.99)', pegCol: '#FFD700',
+    gemEmoji: '☀️', desc: 'Sun ball, golden board, solar gems',
+  },
+  {
+    id: 'back_to_school', name: 'Back to School', emoji: '📚',
+    start: [8,15], end: [9,5],
+    ball: '#FFD700', ballAlt: '#1565C0', trail: 'pencil',
+    trailColors: ['#FFD700','#FFF176','#FFEE58'],
+    board: 'rgba(10,30,60,0.99)', pegCol: '#FFD700',
+    gemEmoji: '📚', desc: 'School colors, pencil trail, book gems',
+  },
+  {
+    id: 'labor_day', name: 'Labor Day', emoji: '☀️',
+    start: [8,30], end: [9,2],
+    ball: '#E63946', ballAlt: '#457B9D', trail: 'summer',
+    trailColors: ['#E63946','#FFFFFF','#457B9D'],
+    board: 'rgba(10,20,40,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '☀️', desc: 'Summer farewell, patriotic gems',
+  },
+  {
+    id: 'fall_equinox', name: 'Fall Equinox', emoji: '🍂',
+    start: [9,20], end: [9,23],
+    ball: '#D4530A', ballAlt: '#8B2500', trail: 'leaves',
+    trailColors: ['#D4530A','#E67E22','#F39C12'],
+    board: 'rgba(25,10,5,0.99)', pegCol: '#E67E22',
+    gemEmoji: '🍂', desc: 'Autumn ball, falling leaf trail, harvest gems',
+  },
+  {
+    id: 'oktoberfest', name: 'Oktoberfest', emoji: '🍺',
+    start: [9,15], end: [10,6],
+    ball: '#C8860A', ballAlt: '#8B5E0A', trail: 'amber',
+    trailColors: ['#C8860A','#E6A817','#F5C842'],
+    board: 'rgba(30,15,5,0.99)', pegCol: '#E6A817',
+    gemEmoji: '🍺', desc: 'Amber ball, warm board, stein gems',
+  },
+  {
+    id: 'diwali', name: 'Diwali', emoji: '🪔',
+    start: [10,20], end: [11,3],
+    ball: '#FFD700', ballAlt: '#E63946', trail: 'diya',
+    trailColors: ['#FFD700','#FF6B00','#E63946'],
+    board: 'rgba(20,10,5,0.99)', pegCol: '#FFD700',
+    gemEmoji: '🪔', desc: 'Festival of lights, jewel trail, lamp gems',
+  },
+  {
+    id: 'veterans_day', name: 'Veterans Day', emoji: '🎖️',
+    start: [11,10], end: [11,12],
+    ball: '#4A5240', ballAlt: '#C5A028', trail: 'classic',
+    trailColors: ['#4A5240','#6B7A5E','#C5A028'],
+    board: 'rgba(15,18,12,0.99)', pegCol: '#C5A028',
+    gemEmoji: '🎖️', desc: 'Olive and gold, service gems',
+  },
+  {
+    id: 'thanksgiving', name: 'Thanksgiving', emoji: '🦃',
+    start: [11,20], end: [11,28],
+    ball: '#C8680A', ballAlt: '#8B2500', trail: 'leaves',
+    trailColors: ['#C8680A','#E67E22','#D4A017'],
+    board: 'rgba(25,12,5,0.99)', pegCol: '#E67E22',
+    gemEmoji: '🦃', desc: 'Harvest ball, autumn trail, turkey gems',
+  },
+  {
+    id: 'black_friday', name: 'Black Friday', emoji: '💰',
+    start: [11,29], end: [12,1],
+    ball: '#1A1A1A', ballAlt: '#2ECC71', trail: 'gold',
+    trailColors: ['#2ECC71','#27AE60','#1A1A1A'],
+    board: 'rgba(5,5,5,0.99)', pegCol: '#2ECC71',
+    gemEmoji: '💰', desc: 'Blackout ball, money trail, cash gems',
+  },
+  {
+    id: 'hanukkah', name: 'Hanukkah', emoji: '✡️',
+    start: [12,10], end: [12,18],
+    ball: '#4A90D9', ballAlt: '#FFFFFF', trail: 'stars',
+    trailColors: ['#4A90D9','#FFFFFF','#87CEEB'],
+    board: 'rgba(8,15,35,0.99)', pegCol: '#FFFFFF',
+    gemEmoji: '✡️', desc: 'Blue and white, menorah gems',
+  },
+  {
+    id: 'winter_solstice', name: 'Winter Solstice', emoji: '❄️',
+    start: [12,20], end: [12,22],
+    ball: '#B3E5FC', ballAlt: '#4FC3F7', trail: 'frost',
+    trailColors: ['#B3E5FC','#FFFFFF','#81D4FA'],
+    board: 'rgba(5,10,25,0.99)', pegCol: '#B3E5FC',
+    gemEmoji: '❄️', desc: 'Ice blue ball, frost trail, snowflake gems',
+  },
+  {
+    id: 'new_years_eve', name: "New Year's Eve", emoji: '🎆',
+    start: [12,30], end: [12,31],
+    ball: '#FFD700', ballAlt: '#C5A028', trail: 'firework',
+    trailColors: ['#FFD700','#FF6B00','#E63946'],
+    board: 'rgba(5,5,15,0.99)', pegCol: '#FFD700',
+    gemEmoji: '🥂', desc: 'Countdown gold, firework trail, champagne gems',
+  },
+  {
+    id: 'lunar_new_year', name: 'Lunar New Year', emoji: '🧧',
+    start: [1,25], end: [2,10],
+    ball: '#E63946', ballAlt: '#FFD700', trail: 'dragon',
+    trailColors: ['#E63946','#FFD700','#FF6B00'],
+    board: 'rgba(30,5,5,0.99)', pegCol: '#FFD700',
+    gemEmoji: '🧧', desc: 'Red and gold, dragon trail, lucky gems',
+  },
+  {
+    id: 'groundhog_day', name: 'Groundhog Day', emoji: '🦔',
+    start: [2,2], end: [2,2],
+    ball: '#8B6914', ballAlt: '#D4A857', trail: 'earth',
+    trailColors: ['#8B6914','#A0845C','#D4A857'],
+    board: 'rgba(20,12,5,0.99)', pegCol: '#D4A857',
+    gemEmoji: '🦔', desc: 'Brown earthy ball, tunnel trail, groundhog gems',
+  },
+  {
+    id: 'mardi_gras', name: 'Mardi Gras', emoji: '🎭',
+    start: [2,14], end: [3,5],
+    ball: '#6A0DAD', ballAlt: '#FFD700', trail: 'beads',
+    trailColors: ['#6A0DAD','#FFD700','#00A550'],
+    board: 'rgba(20,5,30,0.99)', pegCol: '#FFD700',
+    gemEmoji: '🎭', desc: 'Purple gold green, bead trail, mask gems',
+  },
+  {
+    id: 'womens_day', name: "International Women's Day", emoji: '💜',
+    start: [3,7], end: [3,9],
+    ball: '#9B59B6', ballAlt: '#FFD700', trail: 'empowerment',
+    trailColors: ['#9B59B6','#D7BDE2','#FFD700'],
+    board: 'rgba(20,5,30,0.99)', pegCol: '#D7BDE2',
+    gemEmoji: '💜', desc: 'Purple and gold, empowerment gems',
+  },
+  {
+    id: 'pi_day', name: 'Pi Day', emoji: '🥧',
+    start: [3,14], end: [3,14],
+    ball: '#7F77DD', ballAlt: '#5DCAA5', trail: 'math',
+    trailColors: ['#7F77DD','#5DCAA5','#378ADD'],
+    board: 'rgba(10,10,30,0.99)', pegCol: '#5DCAA5',
+    gemEmoji: '🥧', desc: 'Math themed, π trail, pie gems',
+  },
+  {
+    id: 'earth_day', name: 'Earth Day', emoji: '🌍',
+    start: [4,20], end: [4,22],
+    ball: '#2980B9', ballAlt: '#27AE60', trail: 'nature',
+    trailColors: ['#2980B9','#27AE60','#1ABC9C'],
+    board: 'rgba(5,20,10,0.99)', pegCol: '#27AE60',
+    gemEmoji: '🌍', desc: 'Earth ball, nature trail, globe gems',
+  },
+  {
+    id: 'april_fools', name: "April Fools'", emoji: '🃏',
+    start: [4,1], end: [4,1],
+    ball: '#FF0018', ballAlt: '#00FF00', trail: 'chaos',
+    trailColors: ['#FF0018','#00FF00','#0000FF','#FFD700'],
+    board: 'rgba(5,5,5,0.99)', pegCol: '#00FF00',
+    gemEmoji: '🃏', desc: 'Chaos ball, glitch trail, joker gems',
+  },
+  {
+    id: 'autism_awareness', name: 'Autism Awareness', emoji: '🧩',
+    start: [4,1], end: [4,30],
+    ball: '#4A90D9', ballAlt: '#E63946', trail: 'puzzle',
+    trailColors: ['#4A90D9','#E63946','#FFD700','#00A550'],
+    board: 'rgba(8,15,35,0.99)', pegCol: '#4A90D9',
+    gemEmoji: '🧩', desc: 'Puzzle piece colors, awareness gems',
+  },
+  {
+    id: 'mental_health', name: 'Mental Health Month', emoji: '💚',
+    start: [5,1], end: [5,31],
+    ball: '#27AE60', ballAlt: '#1ABC9C', trail: 'calm',
+    trailColors: ['#27AE60','#1ABC9C','#A8E6CF'],
+    board: 'rgba(5,20,15,0.99)', pegCol: '#A8E6CF',
+    gemEmoji: '💚', desc: 'Soft green, calm trail, heart gems',
+  },
+  {
+    id: 'eid', name: 'Eid', emoji: '☪️',
+    start: [4,1], end: [4,10],
+    ball: '#00A550', ballAlt: '#C5A028', trail: 'crescent',
+    trailColors: ['#00A550','#C5A028','#FFFFFF'],
+    board: 'rgba(5,20,10,0.99)', pegCol: '#C5A028',
+    gemEmoji: '☪️', desc: 'Crescent and star, celebration gems',
+  },
+];
+
+function getActiveEvents() {
+  const now = new Date();
+  const m = now.getMonth()+1, d = now.getDate();
+  return SEASONAL_EVENTS.filter(ev => {
+    const [sm,sd] = ev.start, [em,ed] = ev.end;
+    if (sm <= em) return (m>sm||(m===sm&&d>=sd)) && (m<em||(m===em&&d<=ed));
+    // wraps year boundary (e.g. Dec–Jan)
+    return (m>sm||(m===sm&&d>=sd)) || (m<em||(m===em&&d<=ed));
+  });
+}
+
+function getActiveEvent() {
+  const evs = getActiveEvents();
+  if (!evs.length) return null;
+  // prefer most recently started
+  return evs[evs.length-1];
+}
+
+function loadSeasonalOwned() { return LS.get('dz_seasonal_owned', []); }
+function saveSeasonalOwned(a) { LS.set('dz_seasonal_owned', a); }
+function loadEquippedSeasonal() { return LS.get('dz_seasonal_equip', null); }
+function saveEquippedSeasonal(id) { LS.set('dz_seasonal_equip', id); }
+
+function getEquippedSeasonalEvent() {
+  const id = loadEquippedSeasonal();
+  if (!id) return null;
+  return SEASONAL_EVENTS.find(e=>e.id===id)||null;
+}
+
+function getGemEmoji() {
+  const ev = getEquippedSeasonalEvent();
+  return ev ? ev.gemEmoji : '💎';
+}
+
 // ── Audio ─────────────────────────────────────────────────────────────────────
 
 let audioCtx = null;
@@ -402,12 +737,22 @@ function getPlayerTitle() {
 function getAllCosmetics() { return [...SHOP_ITEMS, ...EXCLUSIVE_COSMETICS]; }
 
 function getTheme() {
+  const ev = getEquippedSeasonalEvent();
+  if (ev) return { ball: ev.ball, trail: ev.ballAlt };
   const all = getAllCosmetics();
   const item = all.find(i => i.id === equipped.theme && i.type === 'theme');
   return item || { ball: '#7F77DD', trail: '#AFA9EC' };
 }
-function getBoardSkin() { return equipped.board  || 'default'; }
+
+function getBoardSkin() {
+  const ev = getEquippedSeasonalEvent();
+  if (ev) return 'seasonal';
+  return equipped.board || 'default';
+}
+
 function getTrail() {
+  const ev = getEquippedSeasonalEvent();
+  if (ev) return 'seasonal';
   if (!equipped.trail) return 'default';
   const all=getAllCosmetics();
   const item=all.find(i=>i.id===equipped.trail&&i.type==='trail');
@@ -888,6 +1233,10 @@ function update() {
 
 function boardBg() {
   const skin=getBoardSkin();
+  if (skin==='seasonal') {
+    const ev=getEquippedSeasonalEvent();
+    return ev?ev.board:'rgba(18,18,28,0.99)';
+  }
   if (skin==='dark')      return 'rgba(18,18,28,0.99)';
   if (skin==='neon')      return 'rgba(8,8,24,0.99)';
   if (skin==='minimal')   return 'rgba(245,245,243,0.99)';
@@ -901,6 +1250,10 @@ function boardBg() {
 function pegColor(hit) {
   const skin=getBoardSkin();
   if (hit) return '#D4537E';
+  if (skin==='seasonal') {
+    const ev=getEquippedSeasonalEvent();
+    return ev?ev.pegCol:'#666460';
+  }
   if (skin==='neon')    return '#5DCAA5';
   if (skin==='minimal'||skin==='white') return '#C8C6BE';
   if (skin==='crimson') return '#8B2020';
@@ -915,7 +1268,12 @@ function drawBall(b) {
   b.trail.forEach((pt,i)=>{
     const frac=(i+1)/b.trail.length;
     ctx.beginPath(); ctx.arc(pt.x,pt.y,b.r*frac*0.9,0,Math.PI*2);
-    if (trail==='fire'){ctx.fillStyle=['#FF4500','#FF8C00','#FFD700'][i%3];ctx.globalAlpha=frac*0.7;}
+    if (trail==='seasonal'){
+      const ev=getEquippedSeasonalEvent();
+      const cols=ev?ev.trailColors:['#7F77DD'];
+      ctx.fillStyle=cols[i%cols.length];ctx.globalAlpha=frac*0.75;
+    }
+    else if (trail==='fire'){ctx.fillStyle=['#FF4500','#FF8C00','#FFD700'][i%3];ctx.globalAlpha=frac*0.7;}
     else if (trail==='rainbow'){ctx.fillStyle=`hsl(${(i*25+pulseT*30)%360},100%,60%)`;ctx.globalAlpha=frac*0.8;}
     else if (trail==='glow'){ctx.fillStyle=th.trail;ctx.globalAlpha=frac*0.7;}
     else if (trail==='gem'){ctx.fillStyle=['#5DCAA5','#B9F2FF','#7F77DD'][i%3];ctx.globalAlpha=frac*0.7;}
@@ -1105,6 +1463,25 @@ function drawLaunch() {
   const title=getPlayerTitle();
   if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-52);}
   else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-52);}
+
+  const activeEv=getActiveEvent();
+  const seasonalOwned=loadSeasonalOwned();
+  const seasonalEquipped=loadEquippedSeasonal();
+  if (activeEv) {
+    const isOwned_=seasonalOwned.includes(activeEv.id);
+    const isEquipped=seasonalEquipped===activeEv.id;
+    ctx.fillStyle=isEquipped?'rgba(239,159,39,0.15)':'rgba(127,119,221,0.15)';
+    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-242,280,36,9); ctx.fill();
+    ctx.strokeStyle=isEquipped?'#EF9F27':'#7F77DD'; ctx.lineWidth=1;
+    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-242,280,36,9); ctx.stroke();
+    ctx.fillStyle='#fff'; ctx.font='600 11px system-ui'; ctx.textAlign='center';
+    ctx.fillText(activeEv.emoji+' '+activeEv.name+' — FREE!',W/2,H/2-228);
+    ctx.fillStyle=isEquipped?'#EF9F27':'rgba(175,169,236,0.8)'; ctx.font='400 10px system-ui';
+    ctx.fillText(isEquipped?'equipped ✓ — tap to unequip':isOwned_?'owned — tap to equip':'tap to equip free theme',W/2,H/2-214);
+    drawLaunch._seasonalBanner={y:H/2-242,h:36,ev:activeEv,isEquipped,isOwned:isOwned_};
+  } else {
+    drawLaunch._seasonalBanner=null;
+  }
 
   const btns=[
     {label:'▶  PLAY',            y:H/2-10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
@@ -1410,7 +1787,7 @@ function drawGame() {
     ctx.fillRect(x+1,H-SLOT_H,SLOT_W-2,SLOT_H);
     ctx.fillStyle=sc; ctx.font='500 9px system-ui'; ctx.textAlign='center';
     if (isD) ctx.fillText('💀',x+SLOT_W/2,H-SLOT_H+11);
-    else if (isB) ctx.fillText('💎',x+SLOT_W/2,H-SLOT_H+11);
+    else if (isB) ctx.fillText(getGemEmoji(),x+SLOT_W/2,H-SLOT_H+11);
     ctx.font='500 11px system-ui';
     ctx.fillText(isD?'-ball':BASE_SCORES[i]+(multiplier>1?'×'+multiplier:''),x+SLOT_W/2,H-8);
   }
@@ -1437,7 +1814,14 @@ function drawGame() {
     if (tok.hit) continue;
     let col='#D4537E';
     if (tok.type==='+ball')    col=BONUS_COL;
-    if (tok.type==='gem')      col='#5DCAA5';
+    if (tok.type==='gem') {
+      const scale=0.9+Math.sin(pulseT*1.5)*0.1;
+      ctx.save();
+      ctx.translate(tok.x,tok.y);
+      ctx.scale(scale,scale);
+      ctx.font='16px system-ui'; ctx.textAlign='center';
+      ctx.fillText(getGemEmoji(),0,6);
+      ctx.restore();
     if (tok.type==='gem_multi')col='#FFD700';
     if (tok.type==='shield')   col='#378ADD';
     if (tok.type==='magnet')   col='#7F77DD';
@@ -1710,6 +2094,30 @@ function drawShop() {
     }
     y+=8;
   }
+  // Seasonal owned
+  const seasonalOwned_=loadSeasonalOwned();
+  const ownedSeasonals=SEASONAL_EVENTS.filter(e=>seasonalOwned_.includes(e.id));
+  if (ownedSeasonals.length>0){
+    if (y+20>60&&y<H-10){ctx.fillStyle='#EF9F27';ctx.font='500 9px system-ui';ctx.textAlign='left';ctx.fillText('SEASONAL (FREE EVENT UNLOCKS)',pad,y+10);}
+    y+=20;
+    const equippedSeasonal=loadEquippedSeasonal();
+    for (const ev of ownedSeasonals){
+      if (y+itemH>60&&y<H-10){
+        const isEq=equippedSeasonal===ev.id;
+        ctx.fillStyle=isEq?'rgba(239,159,39,0.18)':'rgba(255,255,255,0.04)';
+        ctx.beginPath(); ctx.roundRect(pad,y,W-pad*2,itemH-4,8); ctx.fill();
+        if (isEq){ctx.strokeStyle='#EF9F27';ctx.lineWidth=1.5;ctx.beginPath();ctx.roundRect(pad,y,W-pad*2,itemH-4,8);ctx.stroke();}
+        ctx.font='18px system-ui'; ctx.textAlign='center';
+        ctx.fillText(ev.emoji,pad+20,y+(itemH-4)/2+6);
+        ctx.fillStyle='#EF9F27';ctx.font='500 13px system-ui';ctx.textAlign='left';ctx.fillText(ev.name,pad+42,y+18);
+        ctx.fillStyle=isEq?'#EF9F27':'#5DCAA5';ctx.font='500 11px system-ui';
+        ctx.fillText(isEq?'equipped — tap to unequip':'tap to equip',pad+42,y+34);
+        ev._shopY=y; ev._shopH=itemH-4;
+      }
+      y+=itemH;
+    }
+  }
+
   drawShop._totalH=y+shopScroll;
   if ((drawShop._totalH||0)>H+shopScroll){ctx.fillStyle='rgba(127,119,221,0.4)';ctx.font='400 11px system-ui';ctx.textAlign='center';ctx.fillText('scroll for more ↓',W/2,H-14);}
 }
@@ -1868,6 +2276,17 @@ function handleTap(gy, clientX) {
 // ── Screen taps ───────────────────────────────────────────────────────────────
 
 function launchTap(gy) {
+  const banner=drawLaunch._seasonalBanner;
+  if (banner&&gy>=banner.y&&gy<=banner.y+banner.h) {
+    const owned_=loadSeasonalOwned();
+    if (banner.isEquipped) {
+      saveEquippedSeasonal(null);
+    } else {
+      if (!owned_.includes(banner.ev.id)){owned_.push(banner.ev.id);saveSeasonalOwned(owned_);}
+      saveEquippedSeasonal(banner.ev.id);
+    }
+    return;
+  }
   const btns=drawLaunch._btns||[];
   for (const btn of btns) {
     if (gy>=btn._y&&gy<=btn._y+btn._h) {
@@ -1912,6 +2331,16 @@ function leaderboardTap(gy) {
 
 function shopTap(gameY) {
   if (gameY>=12&&gameY<=42){screen='launch';syncHUD();return;}
+  // Check seasonal items
+  const seasonalOwned_=loadSeasonalOwned();
+  const ownedSeasonals=SEASONAL_EVENTS.filter(e=>seasonalOwned_.includes(e.id));
+  for (const ev of ownedSeasonals){
+    if (ev._shopY!=null&&gameY>=ev._shopY&&gameY<=ev._shopY+ev._shopH){
+      const cur=loadEquippedSeasonal();
+      saveEquippedSeasonal(cur===ev.id?null:ev.id);
+      return;
+    }
+  }
   const all=[...SHOP_ITEMS,...EXCLUSIVE_COSMETICS];
   for (const item of all) {
     if (item._y==null) continue;
@@ -2087,3 +2516,4 @@ function init() {
 
 window.addEventListener('resize',()=>{resizeCanvas();});
 init();
+}
