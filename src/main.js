@@ -1525,7 +1525,7 @@ function drawLaunch() {
   }
 
   const btns=[
-    {label:'▶  PLAY',            y:H/2-20,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
+    {label:'▶  PLAY',            y:H/2-5,  bg:'#7F77DD',                   fg:'#fff',                  w:220},
     {label:'📅  Daily Challenge', y:H/2+26,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
     {label:'🏆  Achievements',    y:H/2+64,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
     {label:'📊  My Scores',       y:H/2+102, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
