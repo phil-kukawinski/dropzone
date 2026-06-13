@@ -902,17 +902,18 @@ function pegColor(hit) {
 function drawBall(b) {
   const th=getTheme(), trail=getTrail(), fx=getBallFx();
   const pulse=fx==='pulse'?1+Math.sin(pulseT)*0.15:1;
+  ctx.globalAlpha=1;
   b.trail.forEach((pt,i)=>{
-    const frac=i/b.trail.length;
-    ctx.beginPath(); ctx.arc(pt.x,pt.y,b.r*frac*0.8,0,Math.PI*2);
-    if (trail==='fire'){ctx.fillStyle=['#FF4500','#FF8C00','#FFD700'][i%3];ctx.globalAlpha=frac*0.35;}
-    else if (trail==='rainbow'){ctx.fillStyle=`hsl(${(i*25+pulseT*30)%360},100%,60%)`;ctx.globalAlpha=frac*0.4;}
-    else if (trail==='glow'){ctx.fillStyle=th.trail;ctx.globalAlpha=frac*0.5;}
-    else if (trail==='gem'){ctx.fillStyle=['#5DCAA5','#B9F2FF','#7F77DD'][i%3];ctx.globalAlpha=frac*0.45;}
-    else if (trail==='crown'){ctx.fillStyle=['#FFD700','#FFA500','#FFFF00'][i%3];ctx.globalAlpha=frac*0.45;}
-    else if (trail==='glitch'){ctx.fillStyle=i%2===0?'#D4537E':'#5DCAA5';ctx.globalAlpha=frac*0.5;}
-    else if (trail==='phoenix'){ctx.fillStyle=['#FF4500','#FFD700','#FF6B2B'][i%3];ctx.globalAlpha=frac*0.5;}
-    else{ctx.fillStyle=th.trail;ctx.globalAlpha=frac*0.2;}
+    const frac=(i+1)/b.trail.length;
+    ctx.beginPath(); ctx.arc(pt.x,pt.y,b.r*frac*0.9,0,Math.PI*2);
+    if (trail==='fire'){ctx.fillStyle=['#FF4500','#FF8C00','#FFD700'][i%3];ctx.globalAlpha=frac*0.7;}
+    else if (trail==='rainbow'){ctx.fillStyle=`hsl(${(i*25+pulseT*30)%360},100%,60%)`;ctx.globalAlpha=frac*0.8;}
+    else if (trail==='glow'){ctx.fillStyle=th.trail;ctx.globalAlpha=frac*0.7;}
+    else if (trail==='gem'){ctx.fillStyle=['#5DCAA5','#B9F2FF','#7F77DD'][i%3];ctx.globalAlpha=frac*0.7;}
+    else if (trail==='crown'){ctx.fillStyle=['#FFD700','#FFA500','#FFFF00'][i%3];ctx.globalAlpha=frac*0.7;}
+    else if (trail==='glitch'){ctx.fillStyle=i%2===0?'#D4537E':'#5DCAA5';ctx.globalAlpha=frac*0.8;}
+    else if (trail==='phoenix'){ctx.fillStyle=['#FF4500','#FFD700','#FF6B2B'][i%3];ctx.globalAlpha=frac*0.7;}
+    else{ctx.fillStyle=th.trail;ctx.globalAlpha=frac*0.25;}
     ctx.fill(); ctx.globalAlpha=1;
   });
   if (['glow','pulse','explosion'].includes(fx)) {
