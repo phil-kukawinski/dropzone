@@ -348,7 +348,7 @@ function dailyRewardAlreadyClaimed() {
 
 let pegs, balls, particles, popups, obstacles, bonusSlots, deathSlots, tokens;
 let score, best, ballsLeft, gameOver, dropping, round, multiplier, pendingBalls;
-let animRunning, shieldActive, pendingRoundAdvance;
+let shieldActive, pendingRoundAdvance;
 let gems, owned, equipped, achieved;
 let unlockedPowerups;
 let newUnlockMsg, newUnlockTimer;
@@ -728,7 +728,7 @@ function afterBallLands() {
     setMsg(needed>0?needed+' more to advance'+ms:'milestone hit! keep going...');
   } else {
     if (score>=milestoneFor(round)){advanceRound();}
-    else if (!adUsed&&!isDailyMode){adScreen='offer';if(!animRunning){animRunning=true;requestAnimationFrame(loop);}}
+    else if (!adUsed&&!isDailyMode){adScreen='offer';if(!animRunning){}}
     else{triggerGameOver();}
   }
 }
@@ -1745,7 +1745,6 @@ function drawDailyResult() {
 // ── Loop ──────────────────────────────────────────────────────────────────────
 
 function loop() {
-  if (!animRunning) return;
   if (screen==='launch')            { drawLaunch(); launchAnimT+=0.02; for (const s of starfieldStars){s.y+=s.speed;if(s.y>H)s.y=0;} }
   else if (screen==='settings')     { drawSettings(); }
   else if (screen==='achievements') { drawAchievements(); }
@@ -1758,21 +1757,8 @@ function loop() {
       drawGame(); drawAdScreen();
       if (adScreen==='watching'){adTimer--;if(adTimer<=0){adUsed=true;adScreen=false;adRoundAtRevive=round;ballsLeft=3;multiplier=1;SFX.roundUp();setMsg('revived! 3 balls restored — click to drop');updateHUD();}}
     } else { drawGame(); }
-    if (gameOver&&!isDailyMode&&!balls.some(b=>b.active)){animRunning=false;return;}
   }
   requestAnimationFrame(loop);
-}
-
-function idleDraw() {
-  if (!animRunning) {
-    if (screen==='launch') drawLaunch();
-    else if (screen==='settings') drawSettings();
-    else if (screen==='achievements') drawAchievements();
-    else if (screen==='shop') drawShop();
-    else if (screen==='leaderboard') drawLeaderboard();
-    else if (screen==='daily_result') drawDailyResult();
-    else drawGame();
-  }
 }
 
 // ── Input helpers ─────────────────────────────────────────────────────────────
@@ -1782,7 +1768,7 @@ function getGameY(clientY) { const r=gc.getBoundingClientRect(); return (clientY
 function handleTap(gy, clientX) {
   if (screen==='launch')        { launchTap(gy); return; }
   if (screen==='settings')      { settingsTap(gy); return; }
-  if (screen==='achievements')  { if (gy>=12&&gy<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);} return; }
+  if (screen==='achievements')  { if (gy>=12&&gy<=42){screen='launch';syncHUD();} return; }
   if (screen==='leaderboard')   { leaderboardTap(gy); return; }
   if (screen==='daily_result')  { dailyResultTap(gy); return; }
   if (screen==='shop')          { shopTap(gy); return; }
@@ -1809,7 +1795,7 @@ function handleTap(gy, clientX) {
       saveUsername(username);
       const scores=loadScores();
       if (scores.length>0){scores[0].name=username;saveScores(scores);}
-      usernamePromptActive=false; idleDraw();
+      usernamePromptActive=false;
     }
     return;
   }
@@ -1817,9 +1803,8 @@ function handleTap(gy, clientX) {
     if (gy>=H/2+4&&gy<=H/2+42) {
       if (clientToGame(clientX||0)<W/2) {
         homeConfirmPending=false; screen='launch'; syncHUD();
-        animRunning=true; requestAnimationFrame(loop);
       } else {
-        homeConfirmPending=false; idleDraw();
+        homeConfirmPending=false;
       }
     }
     return;
@@ -1827,7 +1812,7 @@ function handleTap(gy, clientX) {
   if (gameOver||dropping||ballsLeft<=0) return;
   ballsLeft--; updateHUD();
   spawnBalls(clientX!==undefined?clientToGame(clientX):W/2);
-  if (!animRunning){animRunning=true;requestAnimationFrame(loop);}
+  if (!animRunning){}
 }
 
 // ── Screen taps ───────────────────────────────────────────────────────────────
@@ -1839,40 +1824,40 @@ function launchTap(gy) {
       SFX.launch(); haptic(10);
       if (btn.label.includes('PLAY'))        { startGame(false); return; }
       if (btn.label.includes('Daily'))       { startGame(true);  return; }
-      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); animRunning=true; requestAnimationFrame(loop); return; }
-      if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); idleDraw(); return; }
+      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); return; }
+      if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); return; }
       if (btn.label.includes('Shop'))        {
         screen='shop'; shopScroll=0; syncHUD();
         const s=loadStats(); s.shopVisits=(s.shopVisits||0)+1; saveStats(s);
-        idleDraw(); return;
+        return;
       }
-      if (btn.label.includes('Settings'))    { screen='settings'; syncHUD(); idleDraw(); return; }
+      if (btn.label.includes('Settings'))    { screen='settings'; syncHUD(); return; }
     }
   }
 }
 
 function settingsTap(gy) {
-  if (gy>=12&&gy<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);return;}
+  if (gy>=12&&gy<=42){screen='launch';syncHUD();return;}
   const items=drawSettings._items||[];
   for (const item of items) {
     if (item.type==='toggle'&&item._y!=null&&gy>=item._y&&gy<=item._y+item._h) {
       if (item.id==='sound'){soundEnabled=!soundEnabled;LS.set('dz_sound',soundEnabled);}
       if (item.id==='vibe') {vibrationEnabled=!vibrationEnabled;LS.set('dz_vibe',vibrationEnabled);}
-      idleDraw(); return;
+      return;
     }
   }
 }
 
 function leaderboardTap(gy) {
-  if (gy>=12&&gy<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);return;}
+  if (gy>=12&&gy<=42){screen='launch';syncHUD();return;}
   const tabs=drawLeaderboard._tabs||[];
   for (const tab of tabs) {
-    if (gy>=tab._y&&gy<=tab._y+tab._h){leaderboardTab=tab.id;idleDraw();return;}
+    if (gy>=tab._y&&gy<=tab._y+tab._h){leaderboardTab=tab.id;return;}
   }
 }
 
 function shopTap(gameY) {
-  if (gameY>=12&&gameY<=42){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);return;}
+  if (gameY>=12&&gameY<=42){screen='launch';syncHUD();return;}
   const all=[...SHOP_ITEMS,...EXCLUSIVE_COSMETICS];
   for (const item of all) {
     if (item._y==null) continue;
@@ -1887,7 +1872,7 @@ function shopTap(gameY) {
         const s=loadStats(); s.shopItemsBought=(s.shopItemsBought||0)+1; saveStats(s);
         checkAchievements();
       }
-      idleDraw(); return;
+      return;
     }
   }
 }
@@ -1901,20 +1886,20 @@ function dailyResultTap(gy) {
     try{navigator.clipboard.writeText(txt);}catch{}
     addPopup(W/2,H/2,'copied!','#5DCAA5'); return;
   }
-  if (gy>=backY&&gy<=backY+30){screen='launch';syncHUD();animRunning=true;requestAnimationFrame(loop);}
+  if (gy>=backY&&gy<=backY+30){screen='launch';syncHUD();}
 }
 
 // ── Input listeners ───────────────────────────────────────────────────────────
 
-gc.addEventListener('mousemove',e=>{if(screen!=='game')return;aimX=clientToGame(e.clientX);idleDraw();});
-gc.addEventListener('mouseleave',()=>{aimX=-1;idleDraw();});
+gc.addEventListener('mousemove',e=>{if(screen!=='game')return;aimX=clientToGame(e.clientX);});
+gc.addEventListener('mouseleave',()=>{aimX=-1;});
 gc.addEventListener('click',e=>{handleTap(getGameY(e.clientY),e.clientX);});
 gc.addEventListener('wheel',e=>{
-  if (screen==='shop'){shopScroll=Math.max(0,Math.min(shopScroll+e.deltaY*0.5,Math.max(0,(drawShop._totalH||0)-H+20)));idleDraw();}
-  if (screen==='achievements'){achieveScroll=Math.max(0,Math.min(achieveScroll+e.deltaY*0.5,Math.max(0,(drawAchievements._totalH||0)-H+20)));idleDraw();}
+  if (screen==='shop'){shopScroll=Math.max(0,Math.min(shopScroll+e.deltaY*0.5,Math.max(0,(drawShop._totalH||0)-H+20)));}
+  if (screen==='achievements'){achieveScroll=Math.max(0,Math.min(achieveScroll+e.deltaY*0.5,Math.max(0,(drawAchievements._totalH||0)-H+20)));}
 },{passive:true});
 gc.addEventListener('touchmove',e=>{
-  if (screen==='game'){e.preventDefault();aimX=clientToGame(e.touches[0].clientX);idleDraw();}
+  if (screen==='game'){e.preventDefault();aimX=clientToGame(e.touches[0].clientX);}
 },{passive:false});
 gc.addEventListener('touchend',e=>{
   e.preventDefault();
@@ -1923,7 +1908,7 @@ gc.addEventListener('touchend',e=>{
 
 document.getElementById('rbtn').addEventListener('click',()=>{
   screen='launch'; soundEnabled=LS.get('dz_sound',true); vibrationEnabled=LS.get('dz_vibe',true);
-  syncHUD(); animRunning=true; requestAnimationFrame(loop);
+  syncHUD();
 });
 
 window.addEventListener('keydown',e=>{
@@ -1933,10 +1918,10 @@ window.addEventListener('keydown',e=>{
     saveUsername(username);
     const scores=loadScores();
     if (scores.length>0){scores[0].name=username;saveScores(scores);}
-    usernamePromptActive=false; idleDraw(); return;
+    usernamePromptActive=false; return;
   }
-  if (e.key==='Backspace'){usernameInput=usernameInput.slice(0,-1);idleDraw();return;}
-  if (e.key.length===1&&usernameInput.length<16){usernameInput+=e.key;idleDraw();}
+  if (e.key==='Backspace'){usernameInput=usernameInput.slice(0,-1);return;}
+  if (e.key.length===1&&usernameInput.length<16){usernameInput+=e.key;}
 });
 
 // ── Shop + Home buttons ───────────────────────────────────────────────────────
@@ -1951,7 +1936,7 @@ function buildShopButton() {
     document.getElementById('button-row').appendChild(hbtn);
   }
   hbtn.onclick=()=>{
-    if (screen==='game'){homeConfirmPending=true;if(!animRunning){animRunning=true;requestAnimationFrame(loop);}idleDraw();}
+    if (screen==='game'){homeConfirmPending=true;if(!animRunning){}}
   };
 
   let btn=document.getElementById('shop-btn');
@@ -1969,8 +1954,7 @@ function buildShopButton() {
       syncHUD();
       btn.textContent=screen==='shop'?'← back':(isDailyMode?'📅 daily':'💎 '+gems);
       btn.style.color=screen==='shop'?'#5DCAA5':'#7F77DD';
-      if(!animRunning){animRunning=true;requestAnimationFrame(loop);}
-      idleDraw();
+      if(!animRunning){}
     }
   };
 }
@@ -2022,7 +2006,7 @@ function startGame(daily) {
   setMsg('aim and click to drop');
   buildBoard(); updateHUD(); resizeCanvas();
   checkAchievements();
-  if (!animRunning){animRunning=true;requestAnimationFrame(loop);}
+  if (!animRunning){}
 }
 
 // ── Standalone functions ──────────────────────────────────────────────────────
@@ -2039,14 +2023,13 @@ function init() {
   soundEnabled=loadSoundPref(); vibrationEnabled=loadVibePref();
   onboardingDone=loadOnboarding();
   username=loadUsername();
-  screen='launch'; launchAnimT=0; animRunning=false;
+  screen='launch'; launchAnimT=0;
   buildStarfield();
   buildShopButton();
   resizeCanvas();
   syncHUD();
-  animRunning=true;
   requestAnimationFrame(loop);
 }
 
-window.addEventListener('resize',()=>{resizeCanvas();idleDraw();});
+window.addEventListener('resize',()=>{resizeCanvas();});
 init();
