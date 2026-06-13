@@ -2259,6 +2259,24 @@ function loop() {
 function getGameY(clientY) { const r=gc.getBoundingClientRect(); return (clientY-r.top)/(r.width/W); }
 
 function handleTap(gy, clientX) {
+  if (usernamePromptActive) {
+    const cx=clientToGame(clientX||0);
+    if (gy>=H/2+42&&gy<=H/2+74&&cx<W/2) {
+      username=usernameInput.trim().slice(0,16)||generateUsername();
+      saveUsername(username);
+      const scores=loadScores();
+      if (scores.length>0){scores[0].name=username;saveScores(scores);}
+      usernamePromptActive=false;
+      return;
+    }
+    if (gy>=H/2+42&&gy<=H/2+74&&cx>=W/2) {
+      if (!username) username=generateUsername();
+      saveUsername(username);
+      usernamePromptActive=false;
+      return;
+    }
+    return;
+  }
   if (screen==='launch')        { launchTap(gy); return; }
   if (screen==='settings')      { settingsTap(gy); return; }
   if (screen==='achievements')  { if (gy>=12&&gy<=42){screen='launch';syncHUD();} return; }
@@ -2292,7 +2310,6 @@ function handleTap(gy, clientX) {
     if (gy>=H/2+42&&gy<=H/2+74&&cx>=W/2) {
       if (!username) username=generateUsername();
       saveUsername(username);
-      usernamePromptActive=false;
       return;
     }
     return;
