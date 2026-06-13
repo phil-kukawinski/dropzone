@@ -1083,9 +1083,8 @@ function isDailyDone() {
   return !!(db[key]&&(db[key].score!==undefined));
 }
 
-const dailyDone=isDailyDone();
-
 function drawLaunch() {
+  const dailyDone=isDailyDone();
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle='rgba(18,18,28,0.99)';
   ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
@@ -1183,6 +1182,16 @@ function drawSettings() {
       ctx.beginPath(); ctx.roundRect(tx,ty,tw,th,12); ctx.fill();
       ctx.fillStyle='#fff';
       ctx.beginPath(); ctx.arc(item.value?tx+tw-12:tx+12,ty+th/2,9,0,Math.PI*2); ctx.fill();
+      item._y=item.y-20; item._h=44;
+    } else if (item.type==='button'){
+      ctx.fillStyle='rgba(255,255,255,0.06)';
+      ctx.beginPath(); ctx.roundRect(16,item.y-20,W-32,44,8); ctx.fill();
+      ctx.fillStyle='rgba(255,255,255,0.7)'; ctx.font='500 14px system-ui'; ctx.textAlign='left';
+      ctx.fillText(item.label,32,item.y+2);
+      ctx.fillStyle='rgba(255,255,255,0.35)'; ctx.font='400 11px system-ui';
+      ctx.fillText(item.sublabel,32,item.y+18);
+      ctx.fillStyle='#7F77DD'; ctx.font='500 11px system-ui'; ctx.textAlign='right';
+      ctx.fillText('edit →',W-32,item.y+2);
       item._y=item.y-20; item._h=44;
     } else if (item.type==='stat'){
       ctx.fillStyle='rgba(255,255,255,0.5)'; ctx.font='400 13px system-ui'; ctx.textAlign='left';
@@ -1563,11 +1572,9 @@ function drawGame() {
       else { continue; }
       const pct=cur/goal;
       if (pct>=0.5&&pct<1) close.push({ach,pct,cur,goal});
-      ctx.fillStyle='rgba(127,119,221,0.5)'; ctx.font='400 11px system-ui'; ctx.textAlign='center';
-    ctx.fillText('↓ play again below',W/2,H-14);
     }
-    ctx.fillStyle='rgba(127,119,221,0.6)'; ctx.font='500 12px system-ui'; ctx.textAlign='center';
-    ctx.fillText('↓ play again below',W/2,H-16);
+    ctx.fillStyle='rgba(127,119,221,0.5)'; ctx.font='500 11px system-ui'; ctx.textAlign='center';
+    ctx.fillText('↓ play again below',W/2,H-14);
     close.sort((a,b)=>b.pct-a.pct);
     const top=close.slice(0,3);
     if (top.length>0){
