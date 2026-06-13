@@ -1487,6 +1487,7 @@ function drawSeasonalPicker(activeEvs) {
 
 function drawLaunch() {
   const dailyDone=isDailyDone();
+  const activeEvs=getActiveEvents();
   ctx.clearRect(0,0,W,H);
   ctx.fillStyle='rgba(18,18,28,0.99)';
   ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
@@ -1508,7 +1509,6 @@ function drawLaunch() {
   if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,activeEvs.length>0?H/2-100:H/2-68);}
   else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,activeEvs.length>0?H/2-100:H/2-68);}
 
-  const activeEvs=getActiveEvents();
   const seasonalEquipped=loadEquippedSeasonal();
   if (activeEvs.length>0) {
     const equippedEv=activeEvs.find(e=>e.id===seasonalEquipped);
