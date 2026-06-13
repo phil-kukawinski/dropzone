@@ -1099,7 +1099,7 @@ function drawLaunch() {
   });
   drawLaunch._btns=btns;
 
-  const ballY=24+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-120);
+  const ballY=24+((Math.sin(launchAnimT*1.2)+1)/2)*(H/2-135);
   const th=getTheme();
   ctx.beginPath(); ctx.arc(W/2,ballY,BALL_R+2,0,Math.PI*2);
   ctx.fillStyle=th.ball+'44'; ctx.fill();
@@ -1759,7 +1759,7 @@ function loop() {
     } else { drawGame(); }
     if (gameOver&&!isDailyMode&&!balls.some(b=>b.active)){animRunning=false;return;}
   }
-  animRunning=true; requestAnimationFrame(loop);
+  if (!animRunning) { animRunning=true; requestAnimationFrame(loop); }
 }
 
 function idleDraw() {
@@ -1816,7 +1816,7 @@ function handleTap(gy, clientX) {
     if (gy>=H/2+4&&gy<=H/2+42) {
       if (clientToGame(clientX||0)<W/2) {
         homeConfirmPending=false; screen='launch'; syncHUD();
-        animRunning=true; requestAnimationFrame(loop);
+        if (!animRunning) { animRunning=true; requestAnimationFrame(loop); }
       } else {
         homeConfirmPending=false; idleDraw();
       }
@@ -1838,7 +1838,7 @@ function launchTap(gy) {
       SFX.launch(); haptic(10);
       if (btn.label.includes('PLAY'))        { startGame(false); return; }
       if (btn.label.includes('Daily'))       { startGame(true);  return; }
-      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); animRunning=true; requestAnimationFrame(loop); return; }
+      if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); if (!animRunning) { animRunning=true; requestAnimationFrame(loop); } return; }
       if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); idleDraw(); return; }
       if (btn.label.includes('Shop'))        {
         screen='shop'; shopScroll=0; syncHUD();
@@ -1922,7 +1922,7 @@ gc.addEventListener('touchend',e=>{
 
 document.getElementById('rbtn').addEventListener('click',()=>{
   screen='launch'; soundEnabled=LS.get('dz_sound',true); vibrationEnabled=LS.get('dz_vibe',true);
-  syncHUD(); animRunning=true; requestAnimationFrame(loop);
+  syncHUD(); if (!animRunning) { animRunning=true; requestAnimationFrame(loop); }
 });
 
 window.addEventListener('keydown',e=>{
