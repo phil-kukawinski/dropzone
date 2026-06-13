@@ -403,8 +403,18 @@ function getTheme() {
   return item || { ball: '#7F77DD', trail: '#AFA9EC' };
 }
 function getBoardSkin() { return equipped.board  || 'default'; }
-function getTrail()     { return equipped.trail  || 'default'; }
-function getBallFx()    { return equipped.ballfx || 'none'; }
+function getTrail() {
+  if (!equipped.trail) return 'default';
+  const all=getAllCosmetics();
+  const item=all.find(i=>i.id===equipped.trail&&i.type==='trail');
+  return item?item.value:'default';
+}
+function getBallFx() {
+  if (!equipped.ballfx) return 'none';
+  const all=getAllCosmetics();
+  const item=all.find(i=>i.id===equipped.ballfx&&i.type==='ballfx');
+  return item?item.value:'none';
+}
 
 // ── Achievement checks ────────────────────────────────────────────────────────
 
@@ -1057,6 +1067,13 @@ function drawOnboarding() {
 }
 
 // ── Draw launch ───────────────────────────────────────────────────────────────
+function isDailyDone() {
+  const key=String(todaySeed());
+  const db=loadDailyBest();
+  return !!(db[key]&&(db[key].score!==undefined));
+}
+
+const dailyDone=isDailyDone();
 
 function drawLaunch() {
   ctx.clearRect(0,0,W,H);
@@ -1082,7 +1099,7 @@ function drawLaunch() {
 
   const btns=[
     {label:'▶  PLAY',            y:H/2-10,  bg:'#7F77DD',                   fg:'#fff',                  w:200},
-    {label:'📅  Daily Challenge', y:H/2+36,  bg:'rgba(93,202,165,0.15)',     fg:'#5DCAA5',               w:220, border:'#5DCAA5'},
+    {label:'📅  Daily Challenge', y:H/2+36,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
     {label:'🏆  Achievements',    y:H/2+78,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
     {label:'📊  Leaderboard',     y:H/2+120, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
     {label:'💎  Shop',            y:H/2+162, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
@@ -1403,14 +1420,24 @@ function drawGame() {
     if (tok.type==='shield')   col='#378ADD';
     if (tok.type==='magnet')   col='#7F77DD';
     const pulse=0.7+Math.sin(pulseT*1.5)*0.3;
-    ctx.beginPath(); ctx.arc(tok.x,tok.y,tok.r+3*pulse,0,Math.PI*2);
-    ctx.strokeStyle=col+'66'; ctx.lineWidth=2; ctx.stroke();
-    ctx.beginPath(); ctx.arc(tok.x,tok.y,tok.r,0,Math.PI*2);
-    ctx.fillStyle=col; ctx.fill();
-    ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
-    ctx.fillStyle='#fff'; ctx.font='600 8px system-ui'; ctx.textAlign='center';
-    const lbl={'x+1':'x'+(Math.min(multiplier+1,10)),'+ball':'+ball',gem:'💎',gem_multi:'💎x2',shield:'SHD',magnet:'MAG'};
-    ctx.fillText(lbl[tok.type]||tok.type,tok.x,tok.y+3);
+    if (tok.type==='gem') {
+      const scale=0.9+Math.sin(pulseT*1.5)*0.1;
+      ctx.save();
+      ctx.translate(tok.x,tok.y);
+      ctx.scale(scale,scale);
+      ctx.font='16px system-ui'; ctx.textAlign='center';
+      ctx.fillText('💎',0,6);
+      ctx.restore();
+    } else {
+      ctx.beginPath(); ctx.arc(tok.x,tok.y,tok.r+3*pulse,0,Math.PI*2);
+      ctx.strokeStyle=col+'66'; ctx.lineWidth=2; ctx.stroke();
+      ctx.beginPath(); ctx.arc(tok.x,tok.y,tok.r,0,Math.PI*2);
+      ctx.fillStyle=col; ctx.fill();
+      ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
+      ctx.fillStyle='#fff'; ctx.font='600 8px system-ui'; ctx.textAlign='center';
+      const lbl={'x+1':'x'+(Math.min(multiplier+1,10)),'+ball':'+1',gem:'💎',gem_multi:'💎x2',shield:'SHD',magnet:'MAG'};
+      ctx.fillText(lbl[tok.type]||tok.type,tok.x,tok.y+3);
+    }
   }
 
   if (shieldActive){ctx.font='500 11px system-ui';ctx.textAlign='center';ctx.fillStyle='#5DCAA5';ctx.fillText('🛡 shield active',W/2,isDailyMode?36:26);}
@@ -1822,7 +1849,7 @@ function launchTap(gy) {
     if (gy>=btn._y&&gy<=btn._y+btn._h) {
       SFX.launch(); haptic(10);
       if (btn.label.includes('PLAY'))        { startGame(false); return; }
-      if (btn.label.includes('Daily'))       { startGame(true);  return; }
+      if (btn.label.includes('Daily')) { if (!isDailyDone()) startGame(true); return; }
       if (btn.label.includes('Achievement')) { screen='achievements'; achieveScroll=0; syncHUD(); return; }
       if (btn.label.includes('Leaderboard')) { screen='leaderboard'; leaderboardTab='all'; syncHUD(); return; }
       if (btn.label.includes('Shop'))        {
