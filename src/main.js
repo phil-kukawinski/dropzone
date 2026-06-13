@@ -1528,8 +1528,8 @@ function drawLaunch() {
     {label:'📅  Daily Challenge', y:H/2+10,  bg:dailyDone?'rgba(255,255,255,0.04)':'rgba(93,202,165,0.15)', fg:dailyDone?'rgba(255,255,255,0.25)':'#5DCAA5', w:220, border:dailyDone?'rgba(255,255,255,0.1)':'#5DCAA5'},
     {label:'🏆  Achievements',    y:H/2+75,  bg:'rgba(239,159,39,0.12)',     fg:'#EF9F27',               w:220, border:'#EF9F27'},
     {label:'📊  My Scores',       y:H/2+115, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'💎  Shop',            y:H/2+165, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
-    {label:'⚙  Settings',         y:H/2+215, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
+    {label:'💎  Shop',            y:H/2+155, bg:'rgba(127,119,221,0.12)',    fg:'#7F77DD',               w:220, border:'#7F77DD'},
+    {label:'⚙  Settings',         y:H/2+195, bg:'rgba(255,255,255,0.06)',    fg:'rgba(255,255,255,0.6)', w:220, border:'rgba(255,255,255,0.2)'},
   ];
 
   btns.forEach(btn=>{
