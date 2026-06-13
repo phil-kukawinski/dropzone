@@ -1503,25 +1503,25 @@ function drawLaunch() {
   }
 
   ctx.fillStyle='#fff'; ctx.font='700 40px system-ui'; ctx.textAlign='center';
-  ctx.fillText('DROPZONE',W/2,H/2-72);
+  ctx.fillText('DROPZONE',W/2,activeEvs.length>0?H/2-118:H/2-88);
   const title=getPlayerTitle();
-  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-52);}
-  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-52);}
+  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,activeEvs.length>0?H/2-100:H/2-68);}
+  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,activeEvs.length>0?H/2-100:H/2-68);}
 
   const activeEvs=getActiveEvents();
   const seasonalEquipped=loadEquippedSeasonal();
   if (activeEvs.length>0) {
     const equippedEv=activeEvs.find(e=>e.id===seasonalEquipped);
     ctx.fillStyle=equippedEv?'rgba(239,159,39,0.15)':'rgba(127,119,221,0.15)';
-    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-40,280,30,9); ctx.fill();
+    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-88,280,30,9); ctx.fill();
     ctx.strokeStyle=equippedEv?'#EF9F27':'#7F77DD'; ctx.lineWidth=1;
-    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-40,280,30,9); ctx.stroke();
+    ctx.beginPath(); ctx.roundRect(W/2-140,H/2-88,280,30,9); ctx.stroke();
     ctx.fillStyle='#fff'; ctx.font='600 11px system-ui'; ctx.textAlign='center';
     const evEmojis=activeEvs.slice(0,4).map(e=>e.emoji).join(' ');
-    ctx.fillText('🎨 Custom Themes  '+evEmojis,W/2,H/2-26);
+    ctx.fillText('🎨 Custom Themes  '+evEmojis,W/2,H/2-74);
     ctx.fillStyle=equippedEv?'#EF9F27':'rgba(175,169,236,0.8)'; ctx.font='400 9px system-ui';
-    ctx.fillText(equippedEv?'equipped: '+equippedEv.name+' — tap to change':'tap to pick a free theme',W/2,H/2-14);
-    drawLaunch._seasonalBanner={y:H/2-40,h:30,activeEvs};
+    ctx.fillText(equippedEv?'equipped: '+equippedEv.name+' — tap to change':'tap to pick a free theme',W/2,H/2-62);
+    drawLaunch._seasonalBanner={y:H/2-88,h:30,activeEvs};
   } else {
     drawLaunch._seasonalBanner=null;
   }
