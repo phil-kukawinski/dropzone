@@ -1251,8 +1251,8 @@ function pegColor(hit) {
   const skin=getBoardSkin();
   if (skin==='seasonal') {
     const ev=getEquippedSeasonalEvent();
-    if (hit) return '#FFFFFF';
-    return ev?ev.pegCol:'#666460';
+    if (hit) return ev?ev.pegCol:'#D4537E';
+    return 'rgba(255,255,255,0.7)';
   }
   if (hit) return '#D4537E';
   if (skin==='neon')    return '#5DCAA5';
