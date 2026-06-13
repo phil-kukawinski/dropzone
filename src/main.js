@@ -1060,7 +1060,6 @@ function drawOnboarding() {
 
 function drawLaunch() {
   ctx.clearRect(0,0,W,H);
-  launchAnimT+=0.03;
   ctx.fillStyle='rgba(18,18,28,0.99)';
   ctx.beginPath(); ctx.roundRect(0,0,W,H,12); ctx.fill();
   drawStarfield();
@@ -1745,12 +1744,12 @@ function drawDailyResult() {
 // ── Loop ──────────────────────────────────────────────────────────────────────
 
 function loop() {
-  if (screen==='launch')            { drawLaunch(); launchAnimT+=0.02; for (const s of starfieldStars){s.y+=s.speed;if(s.y>H)s.y=0;} }
+  if (screen==='launch') { drawLaunch(); launchAnimT+=0.02; }
   else if (screen==='settings')     { drawSettings(); }
   else if (screen==='achievements') { drawAchievements(); }
   else if (screen==='shop')         { drawShop(); }
   else if (screen==='leaderboard')  { drawLeaderboard(); }
-  else if (screen==='daily_result') { drawDailyResult(); for (const s of starfieldStars){s.y+=s.speed;if(s.y>H)s.y=0;} }
+  else if (screen==='daily_result') { drawDailyResult(); }
   else {
     update();
     if (adScreen){
