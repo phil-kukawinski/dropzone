@@ -1151,51 +1151,6 @@ function update() {
       }
       if (p.ht>0){p.ht--;if(p.ht===0)p.hit=false;}
     }
-    for (const tok of tokens) {
-      if (tok.hit) continue;
-      if (Math.hypot(b.x-tok.x,b.y-tok.y)<b.r+tok.r) {
-        tok.hit=true; haptic(12);
-        tokensThisDrop++;
-        if (tokensThisDrop>=2) {
-          addPopup(W/2,H/2-20,tokensThisDrop+'x COMBO!',tokensThisDrop>=4?'#FFD700':tokensThisDrop>=3?'#EF9F27':'#D4537E');
-          addParticles(W/2,H/2,tokensThisDrop>=4?'#FFD700':'#D4537E',tokensThisDrop*4);
-        }
-        const s=loadStats(); s.totalTokens=(s.totalTokens||0)+1; saveStats(s);
-        if (tok.type==='x+1') {
-          multiplier=Math.min(multiplier+1,10);
-          if (multiplier>=3){const st=loadStats();st.hitMulti3=Math.max(st.hitMulti3||0,1);saveStats(st);}
-          if (multiplier>=5){const st=loadStats();st.hitMulti5=Math.max(st.hitMulti5||0,1);saveStats(st);}
-          if (multiplier===10){gameMaxMulti++;const st=loadStats();st.maxMultiInGame=Math.max(st.maxMultiInGame||0,gameMaxMulti);saveStats(st);}
-          SFX.multiplier();
-          addPopup(tok.x,tok.y-16,'x'+multiplier+'!','#D4537E');
-          addParticles(tok.x,tok.y,'#D4537E',10); updateHUD();
-        } else if (tok.type==='+ball') {
-          pendingBalls++; SFX.token();
-          addPopup(tok.x,tok.y-16,'next: '+pendingBalls+'x',BONUS_COL);
-          addParticles(tok.x,tok.y,BONUS_COL,10); updateHUD();
-        } else if (tok.type==='gem') {
-          const g=1+Math.floor(round/5); gems+=g; saveGems(gems);
-          const sg=loadStats();sg.totalGems=(sg.totalGems||0)+g;saveStats(sg);
-          SFX.gem(); addPopup(tok.x,tok.y-16,'+'+g+' 💎','#5DCAA5');
-          addParticles(tok.x,tok.y,'#5DCAA5',10); updateHUD();
-        } else if (tok.type==='gem_multi') {
-          const g=2+Math.floor(round/4); gems+=g; saveGems(gems);
-          const sg=loadStats();sg.totalGems=(sg.totalGems||0)+g;saveStats(sg);
-          SFX.gem();SFX.multiplier();
-          addPopup(tok.x,tok.y-16,'gem x2! +'+g+'💎','#FFD700');
-          addParticles(tok.x,tok.y,'#FFD700',14); updateHUD();
-        } else if (tok.type==='shield') {
-          shieldActive=true; SFX.shield();
-          addPopup(tok.x,tok.y-16,'SHIELD ON','#5DCAA5');
-          addParticles(tok.x,tok.y,'#5DCAA5',10);
-        } else if (tok.type==='magnet') {
-          b.magnetTimer=120;
-          const sm=loadStats();sm.magnetCollected=(sm.magnetCollected||0)+1;saveStats(sm);
-          addPopup(tok.x,tok.y-16,'MAGNET!','#378ADD');
-          addParticles(tok.x,tok.y,'#378ADD',10);
-        }
-      }
-    }
     for (const o of obstacles) {
       if (o.type==='spinner') {
         const cos=Math.cos(o.angle),sin=Math.sin(o.angle);
@@ -1814,14 +1769,6 @@ function drawGame() {
     if (tok.hit) continue;
     let col='#D4537E';
     if (tok.type==='+ball')    col=BONUS_COL;
-    if (tok.type==='gem') {
-      const scale=0.9+Math.sin(pulseT*1.5)*0.1;
-      ctx.save();
-      ctx.translate(tok.x,tok.y);
-      ctx.scale(scale,scale);
-      ctx.font='16px system-ui'; ctx.textAlign='center';
-      ctx.fillText(getGemEmoji(),0,6);
-      ctx.restore();
     if (tok.type==='gem_multi')col='#FFD700';
     if (tok.type==='shield')   col='#378ADD';
     if (tok.type==='magnet')   col='#7F77DD';
@@ -1832,7 +1779,7 @@ function drawGame() {
       ctx.translate(tok.x,tok.y);
       ctx.scale(scale,scale);
       ctx.font='16px system-ui'; ctx.textAlign='center';
-      ctx.fillText('💎',0,6);
+      ctx.fillText(getGemEmoji(),0,6);
       ctx.restore();
     } else {
       ctx.beginPath(); ctx.arc(tok.x,tok.y,tok.r+3*pulse,0,Math.PI*2);
@@ -1841,7 +1788,7 @@ function drawGame() {
       ctx.fillStyle=col; ctx.fill();
       ctx.strokeStyle='#fff'; ctx.lineWidth=1.5; ctx.stroke();
       ctx.fillStyle='#fff'; ctx.font='600 8px system-ui'; ctx.textAlign='center';
-      const lbl={'x+1':'x'+(Math.min(multiplier+1,10)),'+ball':'+1',gem:'💎',gem_multi:'💎x2',shield:'SHD',magnet:'MAG'};
+      const lbl={'x+1':'x'+(Math.min(multiplier+1,10)),'+ball':'+1',gem_multi:'💎x2',shield:'SHD',magnet:'MAG'};
       ctx.fillText(lbl[tok.type]||tok.type,tok.x,tok.y+3);
     }
   }
@@ -2270,7 +2217,6 @@ function handleTap(gy, clientX) {
   if (gameOver||dropping||ballsLeft<=0) return;
   ballsLeft--; updateHUD();
   spawnBalls(clientX!==undefined?clientToGame(clientX):W/2);
-  if (!animRunning){}
 }
 
 // ── Screen taps ───────────────────────────────────────────────────────────────
@@ -2437,7 +2383,6 @@ function buildShopButton() {
       syncHUD();
       btn.textContent=screen==='shop'?'← back':(isDailyMode?'📅 daily':'💎 '+gems);
       btn.style.color=screen==='shop'?'#5DCAA5':'#7F77DD';
-      if(!animRunning){}
     }
   };
 }
@@ -2489,7 +2434,6 @@ function startGame(daily) {
   setMsg('aim and click to drop');
   buildBoard(); updateHUD(); resizeCanvas();
   checkAchievements();
-  if (!animRunning){}
 }
 
 // ── Standalone functions ──────────────────────────────────────────────────────
@@ -2516,4 +2460,3 @@ function init() {
 
 window.addEventListener('resize',()=>{resizeCanvas();});
 init();
-}
