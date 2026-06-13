@@ -1211,6 +1211,7 @@ function drawSettings() {
     }
   });
   drawSettings._items=items;
+  if (usernamePromptActive) drawUsernamePrompt();
 }
 
 
