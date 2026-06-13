@@ -1505,9 +1505,8 @@ function drawLaunch() {
 
   ctx.fillStyle='#fff'; ctx.font='700 38px system-ui'; ctx.textAlign='center';
   ctx.fillText('DROPZONE',W/2,H/2-90);
-  const title=getPlayerTitle();
-  if (title){ctx.fillStyle='#EF9F27';ctx.font='600 13px system-ui';ctx.fillText('✦ '+title+' ✦',W/2,H/2-70);}
-  else{ctx.fillStyle='rgba(175,169,236,0.7)';ctx.font='400 12px system-ui';ctx.fillText('aim. drop. score.',W/2,H/2-70);}
+  ctx.fillStyle='rgba(175,169,236,0.7)'; ctx.font='400 12px system-ui';
+  ctx.fillText('aim. drop. score.',W/2,H/2-70);
 
   const seasonalEquipped=loadEquippedSeasonal();
   if (activeEvs.length>0) {
