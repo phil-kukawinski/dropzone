@@ -19,7 +19,7 @@ const SLOT_COLS = [
 const BONUS_COL = '#EF9F27';
 
 function milestoneFor(r) {
-  return Math.round(100 + (r - 1) * 80 + Math.pow(r - 1, 2.1) * 8);
+  return Math.round(75 + (r - 1) * 80 + Math.pow(r - 1, 2.1) * 8);
 }
 
 // ── Shop catalog ──────────────────────────────────────────────────────────────
