@@ -176,7 +176,7 @@ const SEASONAL_EVENTS = [
     ball: '#FFFFFF', ballAlt: '#1A1A1A', trail: 'grass',
     trailColors: ['#1D9E75','#2ECC71','#27AE60'],
     board: 'rgba(20,80,20,0.99)', pegCol: '#FFFFFF',
-    gemEmoji: '🏆', desc: 'Soccer ball, pitch board, trophy gems',
+    gemEmoji: '🏆', ballEmoji: '⚽', desc: 'Soccer ball, pitch board, trophy gems',
   },
   {
     id: 'fourth_july', name: '4th of July', emoji: '🎆',
@@ -184,7 +184,7 @@ const SEASONAL_EVENTS = [
     ball: '#B22234', ballAlt: '#3C3B6E', trail: 'firework',
     trailColors: ['#B22234','#FFFFFF','#3C3B6E'],
     board: 'rgba(8,8,40,0.99)', pegCol: '#FFFFFF',
-    gemEmoji: '⭐', desc: 'Patriotic colors, firework trail, star gems',
+    gemEmoji: '🇺🇸', ballEmoji: '⭐', desc: 'Patriotic colors, firework trail, star gems',
   },
   {
     id: 'halloween', name: 'Halloween', emoji: '🎃',
@@ -192,7 +192,7 @@ const SEASONAL_EVENTS = [
     ball: '#FF6B00', ballAlt: '#1A0A2E', trail: 'ghost',
     trailColors: ['#FF6B00','#9B59B6','#E8E8E4'],
     board: 'rgba(20,6,40,0.99)', pegCol: '#FF6B00',
-    gemEmoji: '🎃', desc: 'Jack-o-lantern ball, ghost trail, pumpkin gems',
+    gemEmoji: '👻', ballEmoji: '🎃', desc: 'Jack-o-lantern ball, ghost trail, pumpkin gems',
   },
   {
     id: 'christmas', name: 'Christmas', emoji: '🎄',
@@ -200,7 +200,7 @@ const SEASONAL_EVENTS = [
     ball: '#C41E3A', ballAlt: '#1A4A1A', trail: 'snow',
     trailColors: ['#FFFFFF','#C8E6C9','#E3F2FD'],
     board: 'rgba(8,30,8,0.99)', pegCol: '#FFFFFF',
-    gemEmoji: '⭐', desc: 'Holiday red ball, snow trail, star gems',
+    gemEmoji: '🎄', ballEmoji: '⭐', desc: 'Holiday red ball, snow trail, star gems',
   },
   {
     id: 'new_years', name: "New Year's", emoji: '🥂',
@@ -240,7 +240,7 @@ const SEASONAL_EVENTS = [
     ball: '#FF6B00', ballAlt: '#1A1A1A', trail: 'hardwood',
     trailColors: ['#FF6B00','#D4530A','#F5A623'],
     board: 'rgba(101,67,33,0.99)', pegCol: '#FFFFFF',
-    gemEmoji: '🏀', desc: 'Basketball, hardwood board, hoop gems',
+    gemEmoji: '🏀', ballEmoji: '🏀', desc: 'Basketball, hardwood board, hoop gems',
   },
   {
     id: 'easter', name: 'Easter', emoji: '🐣',
@@ -256,7 +256,7 @@ const SEASONAL_EVENTS = [
     ball: '#E63946', ballAlt: '#2D6A4F', trail: 'confetti',
     trailColors: ['#E63946','#F4A261','#2D6A4F'],
     board: 'rgba(30,10,10,0.99)', pegCol: '#F4A261',
-    gemEmoji: '🌮', desc: 'Fiesta colors, confetti trail, taco gems',
+    gemEmoji: '🇲🇽', ballEmoji: '🌮', desc: 'Fiesta colors, confetti trail, taco gems',
   },
   {
     id: 'mothers_day', name: "Mother's Day", emoji: '🌸',
@@ -352,7 +352,7 @@ const SEASONAL_EVENTS = [
     ball: '#C8680A', ballAlt: '#8B2500', trail: 'leaves',
     trailColors: ['#C8680A','#E67E22','#D4A017'],
     board: 'rgba(25,12,5,0.99)', pegCol: '#E67E22',
-    gemEmoji: '🦃', desc: 'Harvest ball, autumn trail, turkey gems',
+    gemEmoji: '🥔', ballEmoji: '🦃', desc: 'Harvest ball, autumn trail, turkey gems',
   },
   {
     id: 'black_friday', name: 'Black Friday', emoji: '💰',
@@ -424,7 +424,7 @@ const SEASONAL_EVENTS = [
     ball: '#7F77DD', ballAlt: '#5DCAA5', trail: 'math',
     trailColors: ['#7F77DD','#5DCAA5','#378ADD'],
     board: 'rgba(10,10,30,0.99)', pegCol: '#5DCAA5',
-    gemEmoji: '🥧', desc: 'Math themed, π trail, pie gems',
+    gemEmoji: '♾️', ballEmoji: '🥧', desc: 'Math themed, π trail, pie gems',
   },
   {
     id: 'earth_day', name: 'Earth Day', emoji: '🌍',
@@ -432,7 +432,7 @@ const SEASONAL_EVENTS = [
     ball: '#2980B9', ballAlt: '#27AE60', trail: 'nature',
     trailColors: ['#2980B9','#27AE60','#1ABC9C'],
     board: 'rgba(5,20,10,0.99)', pegCol: '#27AE60',
-    gemEmoji: '🌍', desc: 'Earth ball, nature trail, globe gems',
+    gemEmoji: '🌳', ballEmoji: '🌍', desc: 'Earth ball, nature trail, globe gems',
   },
   {
     id: 'april_fools', name: "April Fools'", emoji: '🃏',
@@ -1296,13 +1296,13 @@ function drawBall(b) {
   ctx.beginPath(); ctx.arc(b.x,b.y,b.r*pulse,0,Math.PI*2);
   ctx.fillStyle=th.ball; ctx.fill();
   const ev=getEquippedSeasonalEvent();
-  if (ev&&ev.gemEmoji) {
+  if (ev&&ev.ballEmoji) {
     ctx.save();
     ctx.font=`${Math.round(b.r*pulse*1.4)}px system-ui`;
     ctx.textAlign='center';
     ctx.textBaseline='middle';
     ctx.globalAlpha=0.9;
-    ctx.fillText(ev.gemEmoji,b.x,b.y+1);
+    ctx.fillText(ev.ballEmoji,b.x,b.y+1);
     ctx.restore();
     ctx.globalAlpha=1;
   }
