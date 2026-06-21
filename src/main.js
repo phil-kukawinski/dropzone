@@ -1295,6 +1295,17 @@ function drawBall(b) {
   if (b.magnetTimer>0){ctx.beginPath();ctx.arc(b.x,b.y,b.r+4,0,Math.PI*2);ctx.strokeStyle='#378ADD';ctx.lineWidth=2;ctx.globalAlpha=0.6;ctx.stroke();ctx.globalAlpha=1;}
   ctx.beginPath(); ctx.arc(b.x,b.y,b.r*pulse,0,Math.PI*2);
   ctx.fillStyle=th.ball; ctx.fill();
+  const ev=getEquippedSeasonalEvent();
+  if (ev&&ev.gemEmoji) {
+    ctx.save();
+    ctx.font=`${Math.round(b.r*pulse*1.4)}px system-ui`;
+    ctx.textAlign='center';
+    ctx.textBaseline='middle';
+    ctx.globalAlpha=0.9;
+    ctx.fillText(ev.gemEmoji,b.x,b.y+1);
+    ctx.restore();
+    ctx.globalAlpha=1;
+  }
 }
 
 // ── Draw username prompt ──────────────────────────────────────────────────────
